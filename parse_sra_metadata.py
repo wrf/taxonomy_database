@@ -2,7 +2,7 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_sra_metadata.py v1.0 last modified 2019-09-16
+'''parse_sra_metadata.py v1.0 last modified 2019-12-11
 
 parse_sra_metadata.py NCBI_SRA_Metadata_Full_20181203.tar.gz > NCBI_SRA_Metadata_Full_20181203.samples.tab
 
@@ -11,6 +11,15 @@ parse_sra_metadata.py NCBI_SRA_Metadata_Full_20181203.tar.gz > NCBI_SRA_Metadata
 
     download SRA metadata from:
 ftp://ftp.ncbi.nlm.nih.gov/sra/reports/Metadata/
+
+    to generally view the .tar.gz
+tar -tzf NCBI_SRA_Metadata_Full_20180402.tar.gz | more
+
+    some folders do not have sample information
+    this will print up to 100 warnings
+    to inspect individual elements in the .tar.gz, use -zxf
+tar -zxf NCBI_SRA_Metadata_Full_20190914.tar.gz SRA406976
+
 '''
 
 import sys
@@ -19,36 +28,53 @@ import tarfile
 import unicodedata
 import xml.etree.ElementTree as ET
 
+# for interactive Python debug:
+debug='''
+import tarfile
+import xml.etree.ElementTree as ET
+srafile = "NCBI_SRA_Metadata_Full_20191130.tar.gz"
+metadata = tarfile.open(name=srafile, mode="r:gz")
+member = metadata.next()
+member.isdir()
+samplename = "{0}/{0}.sample.xml".format(member.name)
+fex = metadata.extractfile(samplename)
+xmltree = ET.fromstring(fex.read())
+xl = xmltree.getchildren()
+sample = xl[0]
+sl = sample.getchildren()
+'''
+
 if len(sys.argv) < 2:
-	print >> sys.stderr, __doc__
+	sys.stderr.write(sys.stderr)
 else:
 	starttime = time.time()
-	print >> sys.stderr, "# parsing metadata from {}".format(sys.argv[1]), time.asctime()
+	sys.stderr.write("# parsing metadata from {}  {}\n".format( sys.argv[1], time.asctime() ) )
 	metadata = tarfile.open(name=sys.argv[1], mode="r:gz")
-
 	samplecounter = 0
 	foldercounter = 0
-	warningcounter = 0
+	nonfolders = 0
+	nosamplecounter = 0
 	WARNMAX = 100
+	lastnonfolder = ""
 	for member in metadata.getmembers():
 		if member.isdir():
 			foldercounter += 1
 			samplename = "{0}/{0}.sample.xml".format(member.name)
 			if not foldercounter % 100000:
-				print >> sys.stderr, "# {} folders".format(foldercounter), time.asctime()
+				sys.stderr.write("# {} folders  {}\n".format(foldercounter, time.asctime() ) )
 			try:
 				fex = metadata.extractfile(samplename)
 			except KeyError:
-				warningcounter += 1
-				if warningcounter < WARNMAX:
-					print >> sys.stderr, "WARNING: CANNOT FIND ITEM {}, {}, SKIPPING".format(foldercounter, samplename), time.asctime()
-				elif warningcounter == WARNMAX:
-					print >> sys.stderr, "# {} WARNINGS, WILL NOT DISPLAY MORE".format(WARNMAX), time.asctime()
+				nosamplecounter += 1
+				if nosamplecounter < WARNMAX:
+					sys.stderr.write("WARNING: CANNOT FIND ITEM {}, {}, SKIPPING  {}\n".format(foldercounter, samplename, time.asctime() ) )
+				elif nosamplecounter == WARNMAX:
+					sys.stderr.write("# {} WARNINGS, WILL NOT DISPLAY MORE  {}\n".format(WARNMAX, time.asctime() ) )
 				continue
-			#print >> sys.stderr, "# reading sample info from {}".format(samplename)
+			#sys.stderr.write("# reading sample info from {}\n".format(samplename))
 			xmltree = ET.fromstring(fex.read())
 			xl = xmltree.getchildren() # should be SAMPLE_SET of 1 or more SAMPLE
-			#print >> sys.stderr, samplename
+			#sys.stderr.write("{}\n".format(samplename))
 			for sample in xl:
 				samplecounter += 1
 				sl = sample.getchildren()
@@ -81,18 +107,23 @@ else:
 							continue
 						# print line
 						try:
-							outline = u"{}\t{}\t{}\t{}".format( samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None) )
+							outline = u"{}\t{}\t{}\t{}\n".format( samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None) )
 							norm_outline = unicodedata.normalize('NFKD', outline).encode("ascii",errors="replace")
-							print >> sys.stdout, norm_outline
+							sys.stdout.write( norm_outline )
 						except UnicodeEncodeError:
-							print >> sys.stderr, "WARNING: COULD NOT PROCESS UNICODE FOR {} ENTRY {}".format(accession, foldercounter)
+							sys.stderr.write("WARNING: COULD NOT PROCESS UNICODE FOR {} ENTRY {}\n".format(accession, foldercounter) )
+		else: # meaning isdir() is false, so may be a file
+			lastnonfolder = member.name
+			nonfolders += 1
 
 	# report stats of total run
-	if warningcounter > WARNMAX:
-		print >> sys.stderr, "# Last folder was {}, {}".format(foldercounter, samplename), time.asctime()
-	print >> sys.stderr, "# Process completed in {:.1f} minutes".format( (time.time()-starttime)/60 )
-	print >> sys.stderr, "# Found {} folders, and {} samples".format( foldercounter , samplecounter )
-	if warningcounter:
-		print >> sys.stderr, "# Could not find samples for {} folders".format( warningcounter )
+	if nosamplecounter > WARNMAX:
+		sys.stderr.write("# Last folder was {}, {}  {}".format(foldercounter, samplename, time.asctime() ) )
+	sys.stderr.write("# Process completed in {:.1f} minutes\n".format( (time.time()-starttime)/60 ) )
+	sys.stderr.write("# Found {} folders, and {} samples\n".format( foldercounter , samplecounter ) )
+	if nonfolders: # if any files were not in the normal SRA format folders
+		sys.stderr.write("# Found {} members not in folders, last one was {}\n".format(nonfolders, lastnonfolder) )
+	if nosamplecounter:
+		sys.stderr.write("# Could not find samples for {} folders\n".format( nosamplecounter ) )
 	metadata.close()
 

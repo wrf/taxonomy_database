@@ -10,7 +10,9 @@ inputfile = args[1]
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20180402.ncbi_ids_w_kingdom.tab"
 outputfile = gsub("([\\w/]+)\\....$","\\1.pdf",inputfile,perl=TRUE)
 
+print(paste("Reading",inputfile,Sys.time()))
 taxondata = read.table(inputfile, header=TRUE, sep="\t")
+print(paste("Done",Sys.time()))
 
 ### define kingdom and color
 
@@ -66,7 +68,7 @@ numclasses = 40
 thirdgraph = classes[numclasses:1]
 
 ### generate PDF
-
+print(paste("Generating .pdf",outputfile))
 pdf(file=outputfile, width=8, height=11)
 
 par(mar=c(1,10,3,1.6))

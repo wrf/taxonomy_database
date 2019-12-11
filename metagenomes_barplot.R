@@ -8,7 +8,9 @@ inputfile = args[1]
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20181203.metagenomes.tab"
 outputfile = gsub("([\\w/]+)\\....$","\\1.pdf",inputfile,perl=TRUE)
 
+print(paste("Reading",inputfile,Sys.time()))
 taxondata = read.table(inputfile, header=FALSE, sep="\t")
+print(paste("Done",Sys.time()))
 
 # remove items that are None, as those have actual species
 taxondata_filt = taxondata[taxondata!="None"]
@@ -52,6 +54,7 @@ top50 = top100[51:100]
 bottom50 = top100[1:50]
 
 # draw graph
+print(paste("Generating .pdf",outputfile))
 pdf(file=outputfile, width=8, height=11)
 par(mar=c(4,10,2,1.6))
 bp1 = barplot(top50, horiz=TRUE, las=1, xlim=c(0,xmax), col=colorvec[51:100], main=inputfile, cex.lab=1.1, cex.axis=1.3)

@@ -63,7 +63,7 @@ $ head Paramacrobiotus_richtersi_GFGY01.renamed.fasta
 to preserve the information from Trinity components and allow better downstream identification of splice variants (perhaps from BLAST hits). This works for the vast majority of transcriptomes, which are assembled with Trinity, though it may be necessary to confirm for each sample.
 
 ## for all of NCBI SRA ##
-At the time of writing (Dec 2019) [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contains over 3.5M entries, accounting for [13 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (doubling from 6 petabases at the end of 2017). Chordates (so probably human samples, or mouse) account for over 2.1 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for almost 1.2 million.
+At the time of writing (Dec 2019) [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contains over 4.6M entries, accounting for [13 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (doubling from 6 petabases at the end of 2017). Chordates (so probably human samples, or mouse) account for over 2.1 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for almost 1.2 million.
 
 ![NCBI_SRA_Metadata_Full_20191130.ncbi_ids_w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.ncbi_ids_w_kingdom.png)
 
@@ -71,7 +71,9 @@ The entire [metadata library of SRA can be downloaded](https://trace.ncbi.nlm.ni
 
 `tar -tzf NCBI_SRA_Metadata_Full_20180402.tar.gz | more`
 
-Reading from the archive took a long time (rather slowly over several days with 1 CPU). This generates a 4-column table containing: sample name, the SRA number, the NCBI Taxonomy number, the scientific name (species or environment). Based on the xml files present, a large number of folders do not have a `sample.xml` file, which creates a long list of warnings in the script.
+Reading from the archive took a long time (rather slowly over several days with 1 CPU). This generates a 4-column table containing: sample name, the SRA number, the NCBI Taxonomy number, the scientific name (species or environment). Based on the xml files present, a large number of folders do not have a `sample.xml` file, which creates a long list of warnings in the script. The STDERR is shown for the command below.
+
+`parse_sra_metadata.py NCBI_SRA_Metadata_Full_20180402.tar.gz > NCBI_SRA_Metadata_Full_20180402.samples.tab`
 
 ```
 # parsing metadata from NCBI_SRA_Metadata_Full_20191130.tar.gz Thu Dec  5 10:42:36 2019
@@ -90,8 +92,6 @@ Reading from the archive took a long time (rather slowly over several days with 
 # Could not find samples for 128928 folders
 ```
 
-`parse_sra_metadata.py NCBI_SRA_Metadata_Full_20180402.tar.gz > NCBI_SRA_Metadata_Full_20180402.samples.tab`
-
 This produces a table that would look like:
 
 ```
@@ -104,7 +104,7 @@ Because the NCBI taxonomy numbers are also given, rather than just samples, thos
 
 `cut -f 3 NCBI_SRA_Metadata_Full_20180402.samples.tab > NCBI_SRA_Metadata_Full_20180402.ncbi_ids.txt`
 
-This is then processed as above from the taxonomy database to make a 4-column table, of species name, kingdom, phylum and class. This can be added to any existing spreadsheet or processed into the barplot. Here, the numbers are used as input by adding the option `--numbers` to `parse_ncbi_taxonomy.py`.
+This is then processed as above from the taxonomy database to make a 4-column table, of species name, kingdom, phylum and class. This can be added to any existing spreadsheet or processed into the barplot. Here, the numbers are used as input by adding the option `--numbers` to `parse_ncbi_taxonomy.py`. This requires the NCBI Taxonomy data ([see above](https://github.com/wrf/taxonomy_database#adding-kingdom-etc))
 
 `parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20180402.ncbi_ids.txt -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --numbers --header > NCBI_SRA_Metadata_Full_20180402.ncbi_ids_w_kingdom.tab`
 
@@ -126,7 +126,7 @@ Almost a quarter of the samples are metagenomic, i.e. those in the "None" catego
 
 `parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20181203.samples.tab -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --numbers --samples --metagenomes-only > NCBI_SRA_Metadata_Full_20181203.metagenomes.tab`
 
-This is again used as input for the Rscript, to generate another barplot. Obviously, human samples account for a major part.
+This is again used as input for the Rscript, to generate another barplot. Obviously, human samples account for a major part, though apparently `soil` has taken the lead from 2018 to 2019.
 
 `Rscript metagenomes_barplot.R NCBI_SRA_Metadata_Full_20181203.metagenomes.tab`
 

@@ -118,7 +118,7 @@ else:
 
 	# report stats of total run
 	if nosamplecounter > WARNMAX:
-		sys.stderr.write("# Last folder was {}, {}  {}".format(foldercounter, samplename, time.asctime() ) )
+		sys.stderr.write("# Last folder was {}, {}  {}\n".format(foldercounter, samplename, time.asctime() ) )
 	sys.stderr.write("# Process completed in {:.1f} minutes\n".format( (time.time()-starttime)/60 ) )
 	sys.stderr.write("# Found {} folders, and {} samples\n".format( foldercounter , samplecounter ) )
 	if nonfolders: # if any files were not in the normal SRA format folders

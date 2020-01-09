@@ -208,15 +208,15 @@ def main(argv, wayout):
 						outputstring = "{}".format( speciesname )
 					else: # normal mode
 						finalnodes = get_parent_tree(node_id, node_to_rank, node_to_parent)
-						outputstring = "{}\t{}\t{}\t{}".format( speciesname, node_to_name.get(finalnodes[0],"None"), node_to_name.get(finalnodes[1],"None"), node_to_name.get(finalnodes[2],"None") )
+						outputstring = "{}\t{}\t{}\t{}\n".format( speciesname, node_to_name.get(finalnodes[0],"None"), node_to_name.get(finalnodes[1],"None"), node_to_name.get(finalnodes[2],"None") )
 
 						# check for deleted nodes, add to null entries
 						if finalnodes[0]=="Deleted":
 							nullentries += 1
 				else:
 					nullentries += 1
-					outputstring = "{}\tNone\tNone\tNone".format( speciesname )
-				print >> sys.stdout, outputstring
+					outputstring = "{}\tNone\tNone\tNone\n".format( speciesname )
+				sys.stdout.write( outputstring )
 	print >> sys.stderr, "# found tree for {} nodes, could not find for {}".format( foundentries, nullentries), time.asctime()
 
 if __name__ == "__main__":

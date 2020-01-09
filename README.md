@@ -63,7 +63,7 @@ $ head Paramacrobiotus_richtersi_GFGY01.renamed.fasta
 to preserve the information from Trinity components and allow better downstream identification of splice variants (perhaps from BLAST hits). This works for the vast majority of transcriptomes, which are assembled with Trinity, though it may be necessary to confirm for each sample.
 
 ## for all of NCBI SRA ##
-At the time of writing (Dec 2019) [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contains over 4.6M entries, accounting for [13 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (doubling from 6 petabases at the end of 2017). Chordates (so probably human samples, or mouse) account for over 2.1 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for almost 1.2 million.
+At the time of writing (Dec 2019) [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contains over 6.2M entries, accounting for [13 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (doubling from 6 petabases at the end of 2017). Chordates (mostly human samples, or mouse) account for over 2.5 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for almost 1.6 million.
 
 ![NCBI_SRA_Metadata_Full_20191130.ncbi_ids_w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.ncbi_ids_w_kingdom.png)
 
@@ -73,23 +73,29 @@ The entire [metadata library of SRA can be downloaded](https://trace.ncbi.nlm.ni
 
 Reading from the archive took a long time (rather slowly over several days with 1 CPU). This generates a 4-column table containing: sample name, the SRA number, the NCBI Taxonomy number, the scientific name (species or environment). Based on the xml files present, a large number of folders do not have a `sample.xml` file, which creates a long list of warnings in the script. The STDERR is shown for the command below.
 
-`parse_sra_metadata.py NCBI_SRA_Metadata_Full_20180402.tar.gz > NCBI_SRA_Metadata_Full_20180402.samples.tab`
+`parse_sra_metadata.py NCBI_SRA_Metadata_Full_20190914.tar.gz > NCBI_SRA_Metadata_Full_20190914.samples.tab 2> NCBI_SRA_Metadata_Full_20190914.samples.log`
 
 ```
-# parsing metadata from NCBI_SRA_Metadata_Full_20191130.tar.gz Thu Dec  5 10:42:36 2019
-# 100 WARNINGS, WILL NOT DISPLAY MORE Thu Dec  5 10:55:18 2019
-# 100000 folders Fri Dec  6 07:49:42 2019
-# 200000 folders Sat Dec  7 02:58:44 2019
-# 300000 folders Sat Dec  7 19:48:03 2019
-# 400000 folders Sun Dec  8 10:16:25 2019
-# 500000 folders Sun Dec  8 22:21:52 2019
-# 600000 folders Mon Dec  9 08:06:10 2019
-# 700000 folders Mon Dec  9 15:21:07 2019
-# 800000 folders Mon Dec  9 20:19:24 2019
-# Last folder was 807627, SRA446826/SRA446826.sample.xml Mon Dec  9 20:35:32 2019
-# Process completed in 6352.9 minutes
-# Found 807627 folders, and 4632705 samples
-# Could not find samples for 128928 folders
+# parsing metadata from NCBI_SRA_Metadata_Full_20190914.tar.gz  Wed Dec 11 12:24:59 2019
+# 100 WARNINGS, WILL NOT DISPLAY MORE  Wed Dec 11 12:42:42 2019
+# 100000 folders  Thu Dec 12 20:32:08 2019
+# 200000 folders  Sat Dec 14 02:31:20 2019
+# 300000 folders  Sun Dec 15 06:28:39 2019
+# 400000 folders  Mon Dec 16 08:23:30 2019
+# 500000 folders  Tue Dec 17 08:14:53 2019
+# 600000 folders  Wed Dec 18 05:59:39 2019
+# 700000 folders  Thu Dec 19 02:02:55 2019
+# 800000 folders  Thu Dec 19 19:42:26 2019
+# 900000 folders  Fri Dec 20 11:20:12 2019
+# 1000000 folders  Sat Dec 21 00:52:02 2019
+# 1100000 folders  Sat Dec 21 12:21:58 2019
+# 1200000 folders  Sat Dec 21 21:50:16 2019
+# 1300000 folders  Sun Dec 22 05:14:40 2019
+# Last folder was 1391232, ERA542143/ERA542143.sample.xml  Sun Dec 22 10:09:16 2019
+# Process completed in 15704.3 minutes
+# Found 1391232 folders, and 6298073 samples
+# Found 4222631 members not in folders
+# Could not find samples for 182338 folders
 ```
 
 This produces a table that would look like:

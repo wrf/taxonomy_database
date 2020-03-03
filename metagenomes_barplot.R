@@ -24,15 +24,17 @@ xmax = max(metagenomes)
 num_meta = length(metagenomes)
 
 # set up color categories
-humancols = c("human gut", "human", "human oral", "human skin", "human lung", "human nasopharyngeal", "human vaginal", "human saliva", "human reproductive system", "human blood", "human milk")
-gutscols = c("gut", "mouse gut", "pig gut", "bovine gut", "fish gut", "chicken gut", "insect gut", "rat gut")
-animalcols = c("mouse", "insect", "fish", "bird", "pig", "ant", "tick", "sheep", "bovine", "canine", "spider", "mosquito")
-plantcols = c("rhizosphere", "plant", "root", "phyllosphere", "leaf", "leaf litter", "wood decay")
-watercols = c("marine", "freshwater", "aquatic", "seawater", "lake water", "hot springs", "riverine", "wetland", "estuary", "salt lake", "groundwater")
-earthcols = c("soil", "sediment", "marine sediment", "freshwater sediment", "peat", "beach sand", "terrestrial")
-industcols = c("bioreactor", "wastewater", "activated sludge", "sludge", "anaerobic digester", "hydrocarbon", "manure", "fermentation", "bioreactor sludge")
-aircol = c("air", "dust", "indoor", "urban")
-microbecols = c("viral", "biofilm", "fungus", "endophyte")
+humancols = c("human gut", "human", "human oral", "human skin", "human lung", "human nasopharyngeal", "human vaginal", "human saliva", "human reproductive system", "human blood", "human milk", "human bile", "human tracheal")
+gutscols = c("gut", "feces", "mouse gut", "pig gut", "bovine gut", "sheep gut", "fish gut", "chicken gut", "insect gut", "rat gut", "invertebrate gut")
+mar_animalcols = c("coral", "sponge", "fish", "oyster", "coral reef", "crustacean", "sea anemone", "echinoderm", "ctenophore", "sea squirt")
+ter_animalcols = c("primate", "mouse", "rodent", "marsupial", "insect", "bird", "pig", "ant", "tick", "sheep", "ovine", "bovine", "canine", "feline", "spider", "mosquito", "bat", "mollusc", "spider", "mite", "nematode")
+plantcols = c("rhizosphere", "plant", "root", "phyllosphere", "leaf", "flower", "leaf litter", "wood decay", "algae", "root associated fungus", "floral nectar")
+watercols = c("marine", "freshwater", "aquatic", "seawater", "lake water", "hot springs", "riverine", "wetland", "estuary", "salt lake", "groundwater", "hypersaline lake", "ice", "snow")
+earthcols = c("soil", "soil crust", "rock", "sediment", "marine sediment", "freshwater sediment", "peat", "beach sand", "terrestrial", "bog", "volcano")
+industcols = c("bioreactor", "bioreactor sludge", "wastewater", "activated sludge", "sludge", "anaerobic digester", "hydrocarbon", "manure", "fermentation", "bioreactor sludge", "compost", "gas well", "oil", "oil field", "oil sands", "paper pulp", "parchment")
+aircol = c("air", "dust", "indoor", "urban", "aerosol", "cloud")
+microbecols = c("viral", "biofilm", "fungus", "endophyte", "microbial mat")
+plasticcols = c("plastisphere", "plastic", "flotsam")
 
 # take only top 100 out of 250 or so
 top100 = metagenomes[(num_meta-99):num_meta]
@@ -41,7 +43,8 @@ top100 = metagenomes[(num_meta-99):num_meta]
 colorvec = rep("#989898", length(top100))
 colorvec[match(humancols, names(top100))] = "#bf04a7"
 colorvec[match(gutscols, names(top100))] = "#ed9aea"
-colorvec[match(animalcols, names(top100))] = "#9354cf"
+colorvec[match(mar_animalcols, names(top100))] = "#9354cf"
+colorvec[match(ter_animalcols, names(top100))] = "#d10b0b"
 colorvec[match(plantcols, names(top100))] = "#18d025"
 colorvec[match(watercols, names(top100))] = "#45c5f4"
 colorvec[match(earthcols, names(top100))] = "#8e8662"
@@ -70,15 +73,6 @@ mg2_pos[mg2_pos>xmax/2] = mg2_pos[mg2_pos>xmax/2]/3
 text(mg2_pos, bp2, bottom50, pos=4, cex=0.9)
 
 dev.off()
-
-
-
-
-
-
-
-
-
 
 
 

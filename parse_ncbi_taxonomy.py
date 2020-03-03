@@ -9,6 +9,9 @@ parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i species_list.txt
     NCBI Taxonomy files can be downloaded at the FTP:
     ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/
 
+    typically this requires more options, such as --numbers --samples
+parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i sample_w_member.tab --metagenomes-only --numbers --samples > metagenomes_w_member.tab
+
     if using the .csv file directly from NCBI WGS
     https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa
     use the --csv tag as:
@@ -52,7 +55,7 @@ def names_to_nodes(namesfile, metagenomes_only=False):
 	'''read names.dmp and return a dict where name is key and value is the node number'''
 	name_to_node = {}
 	node_to_name = {}
-	print >> sys.stderr, "# reading species names from {}".format(namesfile), time.asctime()
+	sys.stderr.write("# reading species names from {}  {}\n".format(namesfile, time.asctime() ) )
 	for line in open(namesfile,'r'):
 		line = line.strip()
 		if line:
@@ -66,7 +69,7 @@ def names_to_nodes(namesfile, metagenomes_only=False):
 					continue
 				name_to_node[species] = node
 				node_to_name[node] = species
-	print >> sys.stderr, "# counted {} scientific names from {}".format( len(name_to_node), namesfile), time.asctime()
+	sys.stderr.write("# counted {} scientific names from {}  {}\n".format( len(name_to_node), namesfile, time.asctime() ) )
 	return name_to_node, node_to_name
 
 def nodes_to_parents(nodesfilelist):
@@ -74,7 +77,7 @@ def nodes_to_parents(nodesfilelist):
 	node_to_rank = {}
 	node_to_parent = {}
 	for nodesfile in nodesfilelist:
-		print >> sys.stderr, "# reading nodes from {}".format(nodesfile), time.asctime()
+		sys.stderr.write("# reading nodes from {}  {}\n".format(nodesfile, time.asctime() ) )
 		for line in open(nodesfile,'r'):
 			line = line.strip()
 			if line:
@@ -84,7 +87,7 @@ def nodes_to_parents(nodesfilelist):
 				rank = lsplits[2]
 				node_to_rank[node] = rank
 				node_to_parent[node] = parent
-	print >> sys.stderr, "# counted {} nodes from {}".format( len(node_to_rank), nodesfile), time.asctime()
+	sys.stderr.write("# counted {} nodes from {}  {}\n".format( len(node_to_rank), nodesfile, time.asctime() ) )
 	return node_to_rank, node_to_parent
 
 def get_parent_tree(nodenumber, noderanks, nodeparents):
@@ -94,7 +97,6 @@ def get_parent_tree(nodenumber, noderanks, nodeparents):
 	phylum = None
 	pclass = None
 	while nodenumber != "1":
-		#print >> sys.stderr, parent, kingdom, phylum, pclass, nodenumber
 		try:
 			if noderanks[nodenumber] =="kingdom":
 				kingdom = nodenumber
@@ -105,13 +107,15 @@ def get_parent_tree(nodenumber, noderanks, nodeparents):
 			if nodenumber=="2" or nodenumber=="2157": # for bacteria and archaea
 				kingdom = nodenumber
 		except KeyError:
-			print >> sys.stderr, "WARNING: NODE {} MISSING, CHECK delnodes.dmp".format(nodenumber)
+			sys.stderr.write("WARNING: NODE {} MISSING, CHECK delnodes.dmp\n".format(nodenumber) )
 			return ["Deleted","Deleted","Deleted"]
 		parent = nodeparents[nodenumber]
 		nodenumber = parent
 	return [kingdom, phylum, pclass]
 
-def clean_name(seqname, symbollist="#[]()+=&'"):
+def clean_name(seqname):
+	'''read string, return the same string removing most symbols that disrupt downstream analysis'''
+	symbollist = "#[]()+=&'\""
 	for s in symbollist:
 		seqname = seqname.replace(s,"")
 	return seqname
@@ -140,14 +144,16 @@ def main(argv, wayout):
 
 	node_tracker = {} # keys are node IDs, values are counts
 
-	nullentries = 0
+	nullentries = 0 # information cannot be found
+	skippedentries = 0 # skipped for --unique or --metagenomes-only
 	foundentries = 0
-	print >> sys.stderr, "# reading species IDs from {}".format(args.input), time.asctime()
+	writecount = 0
+	sys.stderr.write("# reading species IDs from {}  {}\n".format(args.input, time.asctime() ) )
+	# meaning parse NCBI WGS csv file
 	if args.csv:
 		with open(args.input,'r') as csvfile:
 			ncbicsv = csv.reader(csvfile)
 			for lsplits in ncbicsv:
-			#	print >> sys.stderr, lsplits
 				speciesname = lsplits[4]
 				node_id = name_to_node.get(speciesname,None)
 				if speciesname is not None: # remove any # that would disrupt downstream analyses
@@ -166,8 +172,10 @@ def main(argv, wayout):
 				else:
 					nullentries += 1
 					outputlist = lsplits[0:5] + ["None", "None", "None"] + lsplits[6:]
-				outputstring = clean_name("\t".join(outputlist))
-				print >> sys.stdout, outputstring
+				outputstring = "{}\n".format( clean_name("\t".join(outputlist)) )
+				writecount += 1
+				sys.stdout.write( outputstring )
+	# parse tabular output
 	else:
 		for line in open(args.input,'r'):
 			line = line.strip()
@@ -200,12 +208,17 @@ def main(argv, wayout):
 				node_tracker[node_id] = node_tracker.get(node_id, 0) + 1
 				# in unique mode, if node has been seen before then skip it
 				if args.unique and node_tracker.get(node_id,0) > 1:
+					skippedentries += 1
 					continue
 
 				if node_id is not None:
 					foundentries += 1
 					if args.metagenomes_only:
-						outputstring = "{}".format( speciesname )
+						if speciesname is None:
+							skippedentries += 1
+							continue
+						cleaned_line = clean_name(line)
+						outputstring = "{}\t{}\n".format( cleaned_line, speciesname )
 					else: # normal mode
 						finalnodes = get_parent_tree(node_id, node_to_rank, node_to_parent)
 						outputstring = "{}\t{}\t{}\t{}\n".format( speciesname, node_to_name.get(finalnodes[0],"None"), node_to_name.get(finalnodes[1],"None"), node_to_name.get(finalnodes[2],"None") )
@@ -216,8 +229,11 @@ def main(argv, wayout):
 				else:
 					nullentries += 1
 					outputstring = "{}\tNone\tNone\tNone\n".format( speciesname )
+				writecount += 1
 				sys.stdout.write( outputstring )
-	print >> sys.stderr, "# found tree for {} nodes, could not find for {}".format( foundentries, nullentries), time.asctime()
+	sys.stderr.write("# found tree for {} nodes, could not find for {}  {}\n".format( foundentries, nullentries, time.asctime() ) )
+	if skippedentries:
+		sys.stderr.write("# wrote {} entries, skipped {} entries\n".format( writecount, skippedentries ) )
 
 if __name__ == "__main__":
 	main(sys.argv[1:], sys.stdout)

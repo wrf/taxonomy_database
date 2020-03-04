@@ -137,3 +137,34 @@ This is again used as input for the Rscript, to generate another barplot. Obviou
 `Rscript metagenomes_barplot.R NCBI_SRA_Metadata_Full_20181203.metagenomes.tab`
 
 ![NCBI_SRA_Metadata_Full_20191130.metagenomes.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.metagenomes.png)
+
+### Map of metagenomes ###
+
+![NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-sponge_water.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-sponge_water.png)
+
+To instead extract a longer table including location and latitude/longitude of each sample, use the alternate script. This produces a 9-column table, the same 4 as above, with scientific name, lat-lon, date, source, and location (as best given).
+
+`parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz > NCBI_SRA_Metadata_Full_20191130.sample_ext.tab`
+
+This is converted into the organized table including the category as a final column:
+
+`./parse_ncbi_taxonomy.py -n ~/db/taxonomy-20191211/names.dmp -o ~/db/taxonomy-20191211/nodes.dmp -i NCBI_SRA_Metadata_Full_20191130.sample_ext.tab --metagenomes-only --numbers --samples > NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab`
+
+The latlon information contains a lot of errors due to different versions or missing data. This must be fixed.
+
+`polish_metagenome_table.py NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab > NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-fixed.tab`
+
+```
+# Reading NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab
+# Counted 1131076 entries, wrote 685147 entries
+# 169410 entries had 'NA' as lat-lon, removed
+# 88273 entries had 'missing' as lat-lon, removed
+# 60320 entries had 'not collected' as lat-lon, removed
+# 127926 entries had an unknown format of lat-lon, removed
+# 50 entries had lat-lon as deg-min-sec format, fixed
+# 13 entries had lat-lon as a range, fixed
+```
+
+This is used within the R script `metagenomes_map.R`. Due to the large number of points, it is better to use interactively.
+
+

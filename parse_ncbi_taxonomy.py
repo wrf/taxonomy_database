@@ -2,15 +2,18 @@
 #
 # parse_ncbi_taxonomy.py  created by WRF 2018-04-05
 
-'''parse_ncbi_taxonomy.py  last modified 2019-09-16
+'''parse_ncbi_taxonomy.py  last modified 2020-03-04
 
 parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i species_list.txt
 
     NCBI Taxonomy files can be downloaded at the FTP:
     ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/
 
-    typically this requires more options, such as --numbers --samples
-parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i sample_w_member.tab --metagenomes-only --numbers --samples > metagenomes_w_member.tab
+    if using the short output format of metagenomes, omit --samples
+parse_ncbi_taxonomy.py -i ncbi_ids.txt -n names.dmp -o nodes.dmp --metagenomes-only --numbers --header > metagenomes.tab
+
+    if using the extended output (9-column), include --samples
+parse_ncbi_taxonomy.py -i sample_ext.tab -n names.dmp -o nodes.dmp --metagenomes-only --numbers --samples > metagenomes_ext.tab
 
     if using the .csv file directly from NCBI WGS
     https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa

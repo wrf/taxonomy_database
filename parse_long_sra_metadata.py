@@ -122,7 +122,7 @@ else:
 					continue
 				# print line
 				try:
-					outline = u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( member.name, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","NA"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
+					outline = u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( member.name, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
 					norm_outline = unicodedata.normalize('NFKD', outline).encode("ascii",errors="replace")
 					sys.stdout.write( norm_outline )
 				except UnicodeEncodeError:

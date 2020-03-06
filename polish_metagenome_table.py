@@ -23,10 +23,13 @@ def two_part_latlon(latlon, debug=False):
 
 	# most basic case
 	#55.398487 10.420596
+	#SRA172288	8L	SRS646256	749907	sediment metagenome	49.33598. 57.49939	Aug-2009	NA	Canada: Newfoundland	sediment metagenome
 	rematch = re.search("(-?[.\d]+) (-?[.\d]+)", latlon)
 	if rematch:
 		latitude = "{}".format(rematch.group(1))
 		longitude = "{}".format(rematch.group(2))
+		if latitude[-1]==".":
+			latitude = latitude[:-1]
 		return latitude, longitude
 
 	# mostly correct, but punctuation problems
@@ -549,6 +552,10 @@ else:
 				latitude = latitude.replace("?","")
 			if longitude[-1]=="?":
 				longitude = longitude.replace("?","")
+
+#SRA189798	LAO-D49	SRS720730	527639	wastewater metagenome	49.5134139 N 0.006.0179250 E	10/5/11	NA	Luxembourg: Schifflange	wastewater metagenome
+			if longitude.find("0.006")==0:
+				longitude = longitude.replace("0.00","")
 
 		# for entries with weird splits
 		elif len(latlonsp) == 2:

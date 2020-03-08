@@ -155,16 +155,18 @@ The latlon information contains a lot of errors due to different versions or mis
 `polish_metagenome_table.py NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab > NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-fixed.tab`
 
 ```
-# Reading NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab
-# Counted 1131076 entries, wrote 685147 entries
-# 169410 entries had 'NA' as lat-lon, removed
-# 88273 entries had 'missing' as lat-lon, removed
-# 60320 entries had 'not collected' as lat-lon, removed
-# 127926 entries had an unknown format of lat-lon, removed
+# Reading NCBI_SRA_Metadata_Full_20191130.metagenomes_w_member.tab
+# Counted 1131076 entries, wrote 686747 entries
+# 443173 entries did not include lat-lon (missing, not collected, etc.), removed
+# 106 entries had other values as lat-lon, removed
+# 1050 entries had an unknown format of lat-lon, removed
 # 50 entries had lat-lon as deg-min-sec format, fixed
-# 13 entries had lat-lon as a range, fixed
+# 15 entries had lat-lon as a range, fixed
+# 1465 entries had unusual formats, fixed
 ```
 
-This is used within the R script `metagenomes_map.R`. Due to the large number of points, it is better to use interactively.
+The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/subsurface2017/downloads/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon_v1.tab.gz). This may be updated later to include approximate locations when the location tag is given (for cities, parks, rock formations, et cetera).
+
+This is used within the R script [metagenomes_map.R](https://github.com/wrf/taxonomy_database/blob/master/metagenomes_map.R). Due to the large number of points, it is better to use interactively.
 
 

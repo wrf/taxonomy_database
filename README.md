@@ -163,6 +163,8 @@ The latlon information contains a lot of errors due to different versions or mis
 # 50 entries had lat-lon as deg-min-sec format, fixed
 # 15 entries had lat-lon as a range, fixed
 # 1465 entries had unusual formats, fixed
+# 642470 entries had acceptable date format, 44277 were missing date
+# 334 entries had improbable sample dates (before 1990)
 ```
 
 The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/subsurface2017/downloads/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon_v1.tab.gz). This may be updated later to include approximate locations when the location tag is given (for cities, parks, rock formations, et cetera).

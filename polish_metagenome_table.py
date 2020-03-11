@@ -451,6 +451,51 @@ def four_part_latlon(latlon, debug=False):
 
 
 
+def fix_date_formats(rawdate):
+
+	# https://submit.ncbi.nlm.nih.gov/biosample/template/?package=Invertebrate.1.0&action=definition
+	# supported formats include "DD-Mmm-YYYY", "Mmm-YYYY", "YYYY" or ISO 8601 standard "YYYY-mm-dd", "YYYY-mm", "YYYY-mm-ddThh:mm:ss"; 
+	# e.g., 30-Oct-1990, Oct-1990, 1990, 1990-10-30, 1990-10, 21-Oct-1952/15-Feb-1953, 2015-10-11T17:53:03Z
+	months = {"Jan":"01", "Feb":"02", "Mar":"03", "Apr":"03", "May":"05", "Jun":"06", 
+              "Jul":"07", "Aug":"08", "Sep":"09", "Oct":"10", "Nov":"11", "Dec":"12" }
+
+	# if date is in YEAR-MO-DA format, but could include words on either side
+	rematch = re.search("(\d\d\d\d)-(\d\d)-(\d\d)", rawdate)
+	if rematch:
+		year, month, day = rematch.groups()
+		ymd_format = "{}-{}-{}".format( year, month, day )
+		return ymd_format
+
+	# if date is DD-Mmm-YYYY format
+	# 4 \w are used to allow for mistaken use of full months
+	rematch = re.search("^(\d\d)-(\w+)-(\d\d\d\d)$", rawdate)
+	if rematch:
+		day, month, year = rematch.groups()
+		monthnum = months.get(month[0:3], "00")
+		ymd_format = "{}-{}-{}".format( year, monthnum, day )
+		return ymd_format
+
+	# if date is only YEAR-MO format
+	rematch = re.search("^(\d\d\d\d)-(\d\d)$", rawdate)
+	if rematch:
+		return rawdate + "-00"
+
+	# if date is Mmm-YYYY format
+	rematch = re.search("^(\w+)-(\d\d\d\d)$", rawdate)
+	if rematch:
+		month, year = rematch.groups()
+		monthnum = months.get(month[0:3], "00")
+		ymd_format = "{}-{}-00".format( year, monthnum )
+		return ymd_format
+
+	# if date is only YEAR
+	rematch = re.search("^(\d\d\d\d)$", rawdate)
+	if rematch:
+		return rawdate + "-00-00"
+
+	# for all other cases, return all zeroes
+	return "0000-00-00"
+
 
 
 # BEGIN MAIN CODE BLOCK
@@ -461,6 +506,12 @@ def four_part_latlon(latlon, debug=False):
 if len(sys.argv) < 2:
 	sys.exit( __doc__ )
 else:
+	#
+	# FIX LAT-LON INFORMATION
+	#
+
+	# The geographical coordinates of the location where the sample was collected. 
+	# Specify as degrees latitude and longitude in format "d[d.dddd] N|S d[dd.dddd] W|E", eg, 38.98 N 77.11 W
 	# counters for various missing data
 	dms_counter = 0
 	range_counter = 0
@@ -472,6 +523,11 @@ else:
 	non_nsew_counter = 0
 	void_counter = 0
 	missing_counter = 0
+
+	# counters for date correction
+	no_date_counter = 0
+	has_date_counter = 0
+	strange_date = 0
 
 	# includes typo of 'not availalble' and 'missisng_1'
 	missing_variants = ["missing", "Missing", "MISSING", "NA", "N/A", "na", "n/a", "n/A", "NOT APPLICABLE", "Not Applicable", "Not applicable", "not applicable", "not determined", "not recorded", "not collected", "Not collected", "Not Collected", "NOT COLLECTED", "not available", "Not available", "Not Available", "not availalble", "not provided", "Unknown", "unknown", "-", "None", "none", "missisng_1", "missisng_2", "missisng_3", "missisng_4", "NULL", "?", "AE"]
@@ -590,6 +646,18 @@ else:
 				continue
 			four_part_fix += 1
 
+
+		# fix the date to the same format
+		rawdate = lsplits[6]
+		fixed_date = fix_date_formats(rawdate)
+		if fixed_date=="0000-00-00":
+			no_date_counter += 1
+		else:
+			has_date_counter += 1
+		if 0000 < int(fixed_date.split("-")[0]) < 1990:
+			strange_date += 1
+		lsplits[6] = "{}\t{}\t{}".format( *fixed_date.split("-") )
+
 		# reassign split
 		lsplits[5] = "{}\t{}".format(latitude, longitude)
 		# print line
@@ -598,7 +666,7 @@ else:
 	# count fixes of non standard formats
 	weird_fixes = one_part_fix + two_part_fix + four_part_fix + six_part_fix
 
-	# report final stats
+	# report final latlon stats
 	sys.stderr.write("# Counted {} entries, wrote {} entries\n".format(entry_count, print_count) )
 	if void_counter:
 		sys.stderr.write("# {} entries had 'VOID' as lat-lon from previous steps, removed\n".format(na_counter) )
@@ -614,4 +682,11 @@ else:
 		sys.stderr.write("# {} entries had lat-lon as a range, fixed\n".format(range_counter) )
 	if weird_fixes:
 		sys.stderr.write("# {} entries had unusual formats, fixed\n".format(weird_fixes) )
+
+	# report date stats
+	if has_date_counter:
+		sys.stderr.write("# {} entries had acceptable date format, {} were missing date\n".format( has_date_counter, no_date_counter ) )
+	if strange_date:
+		sys.stderr.write("# {} entries had improbable sample dates (before 1990)\n".format(strange_date) )
+
 #

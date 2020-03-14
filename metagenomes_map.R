@@ -6,15 +6,22 @@ library(maps)
 inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.tab"
 metagenomedata = read.table(inputfilename, header=FALSE, sep="\t", stringsAsFactors=FALSE)
 
+#head(metagenomedata)
+
 # to view sorted table of counts by category
 #sort(table(metagenomedata[["V11"]]), decreasing=TRUE)
 #table(metagenomedata[["V11"]])
 
-latitude = metagenomedata[["V6"]]
-longitude = metagenomedata[["V7"]]
+latitude = as.numeric(metagenomedata[["V6"]])
+longitude = as.numeric(metagenomedata[["V7"]])
+
+meta_year = metagenomedata[["V8"]]
+
+# table of years of samples
+#table(meta_year)
 
 # remove metagenome from the name of each
-metagenome_type = sub(" metagenome", "", metagenomedata[["V11"]])
+metagenome_type = sub(" metagenome", "", metagenomedata[["V13"]])
 
 
 # NOTES on categories
@@ -108,6 +115,7 @@ pdf( file="~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20191130.metagenomes_l
 worldmap = map('world', fill=TRUE, col="#ededed", border="#898989", mar=c(0.1,0.1,0.1,0.1) )
 spongeset = which(!is.na(match(metagenome_type, c("sponge") ) ) )
 points( longitude[spongeset], latitude[spongeset], bg="#9354cf88", pch=21, cex=3)
+mtext(paste( length(spongeset), "total samples" ), side=3, cex=3)
 dev.off()
 
 # for whole categories of terms, above
@@ -127,6 +135,37 @@ spongeset = which(!is.na(match(metagenome_type, c("sponge") ) ) )
 points( longitude[spongeset], latitude[spongeset], bg="#9354cf88", pch=21, cex=3)
 legend(-130,-45, legend=c("Sponge", "Any water type"), col=c("#9354cf", "#45c5f4"), pch=16, cex=2, bty='n')
 dev.off()
+
+
+
+
+# make multiple plots, one for each year
+#
+yearset = c("2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019")
+num_years = length(yearset)
+for (i in seq(1,num_years)) {
+	png_by_year_file = paste0("~/git/taxonomy_database/images/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.earth-",yearset[i],".png")
+	png( file=png_by_year_file, height=500, width=1000)
+	worldmap = map('world', fill=TRUE, col="#ededed", border="#898989", mar=c(0.1,0.1,0.1,0.1) )
+	# color past years dark
+	earthset = which(!is.na(match(metagenome_type, earthcols ) ) & meta_year > 2000 & meta_year < yearset[i] )
+	points( longitude[earthset], latitude[earthset], bg="#4e2602", pch=21, cex=1)
+	# color current year orange
+	earthset = which(!is.na(match(metagenome_type, earthcols ) ) & meta_year==yearset[i] )
+	points( longitude[earthset], latitude[earthset], bg="#feb24c", pch=21, cex=1)
+	# write samples in current year, and year to the plot
+	text(-180,80,paste( length(earthset), "new samples" ), cex=1.5, pos=4)
+	text(-180,-80,yearset[i], cex=3, pos=4)
+	dev.off()
+}
+
+# then run convert from imagemagick
+# cd ~/git/taxonomy_database/images/
+# convert -delay 90 NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.earth-20??.png -loop 0 NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.earth_01-19.gif
+
+
+
+
 
 
 

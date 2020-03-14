@@ -1,4 +1,15 @@
-# taxonomy database #
+# What is in the large sequence databases? #
+Large sequence archives like [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/) can be unruly for beginners. They tend not not provide much overview of what is there, or how to contextualize those data (where/when).
+
+Scripts are written for Python and R. Below, I detail how I made:
+
+* plot of the most common species in the [NCBI trace assembly archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa) (dominated by the insect transcriptome project)
+* [plot](https://github.com/wrf/taxonomy_database#for-all-of-ncbi-sra) of the most common samples in [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) (human and mouse samples dominate)
+* plot of species diversity, by taxonomic rank (bacteria dominate)
+* [plot](https://github.com/wrf/taxonomy_database#metagenomic-samples) of most common sources of metagenomes (human and gut samples dominate, then soil, then water)
+* [map](https://github.com/wrf/taxonomy_database#map-of-metagenomes) of global distribution of metagenomic samples (can be modified to show any category)
+
+## NCBI transcriptome assemblies ##
 The master list of the transcriptome shotgun archive can be found below, though the embedded links only download a GenBank format file:
 
 `ftp://ftp.ddbj.nig.ac.jp/ddbj_database/tsa/TSA_ORGANISM_LIST.html`
@@ -150,7 +161,7 @@ This is converted into the organized table including the category as a final col
 
 `./parse_ncbi_taxonomy.py -n ~/db/taxonomy-20191211/names.dmp -o ~/db/taxonomy-20191211/nodes.dmp -i NCBI_SRA_Metadata_Full_20191130.sample_ext.tab --metagenomes-only --numbers --samples > NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab`
 
-The latlon information contains a lot of errors due to different versions or missing data. This must be fixed.
+The latlon information contains a lot of errors due to different versions or missing data. This must be fixed. The same goes for the dates, which were supposed to be in one of a few formats, but can also be missing or contain errors.
 
 `polish_metagenome_table.py NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab > NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-fixed.tab`
 
@@ -166,6 +177,8 @@ The latlon information contains a lot of errors due to different versions or mis
 # 642470 entries had acceptable date format, 44277 were missing date
 # 334 entries had improbable sample dates (before 1990)
 ```
+
+The output is an extended tabular file, where latlon has been split to 2 columns, and the date has been split into 3 (year month day). This makes it much easier to sort in R using the location or year.
 
 The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/subsurface2017/downloads/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon_v1.tab.gz). This may be updated later to include approximate locations when the location tag is given (for cities, parks, rock formations, et cetera).
 

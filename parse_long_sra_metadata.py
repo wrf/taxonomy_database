@@ -2,7 +2,7 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.0 last modified 2020-03-04
+'''parse_long_sra_metadata.py v1.0 last modified 2020-09-29
 
 parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
 
@@ -99,7 +99,10 @@ else:
 					if sinfo.tag=="SAMPLE_ATTRIBUTES":
 						for subattr in sinfo.getchildren():
 							subsubattr = subattr.getchildren() # should be list
-							sampleattrs[subsubattr[0].text] = subsubattr[1].text
+							if len(subsubattr) > 1:
+								sampleattrs[subsubattr[0].text] = subsubattr[1].text
+							else: # this may become a warning later
+								sampleattrs[subsubattr[0].text] = "NO_VALUE"
 					if sinfo.tag=="SAMPLE_NAME":
 						for subinfo in sinfo.getchildren():
 							namedict[subinfo.tag] = subinfo.text

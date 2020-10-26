@@ -2,7 +2,7 @@
 
 # polish_metagenome_table.py
 
-'''polish_metagenome_table.py  last modified 2020-03-06
+'''polish_metagenome_table.py  last modified 2020-10-23
     tidy up formats, fix lat-long info
 
 polish_metagenome_table.py metagenomes_ext.tab > metagenomes_latlon-fixed.tab
@@ -604,9 +604,9 @@ else:
 
 			# remove terminal ? for cases below
 #SRA074245	LM300	SRS1239132	410658	soil metagenome	45.5081? N, 73.5550? W	2011-06-15	NA	Canada: Montreal	soil metagenome
-			if latitude[-1]=="?":
+			if latitude and latitude[-1]=="?":
 				latitude = latitude.replace("?","")
-			if longitude[-1]=="?":
+			if longitude and longitude[-1]=="?":
 				longitude = longitude.replace("?","")
 
 #SRA189798	LAO-D49	SRS720730	527639	wastewater metagenome	49.5134139 N 0.006.0179250 E	10/5/11	NA	Luxembourg: Schifflange	wastewater metagenome
@@ -669,7 +669,7 @@ else:
 	# report final latlon stats
 	sys.stderr.write("# Counted {} entries, wrote {} entries\n".format(entry_count, print_count) )
 	if void_counter:
-		sys.stderr.write("# {} entries had 'VOID' as lat-lon from previous steps, removed\n".format(na_counter) )
+		sys.stderr.write("# {} entries had 'VOID' as lat-lon from previous steps, removed\n".format(void_counter) )
 	if missing_counter:
 		sys.stderr.write("# {} entries did not include lat-lon (missing, not collected, etc.), removed\n".format(missing_counter) )
 	if nc_counter:

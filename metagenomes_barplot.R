@@ -6,11 +6,17 @@ args = commandArgs(trailingOnly=TRUE)
 
 inputfile = args[1]
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20181203.metagenomes.tab"
+#inputfile = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20200924.metagenomes_ext.tab"
 outputfile = gsub("([\\w/]+)\\....$","\\1.pdf",inputfile,perl=TRUE)
 
 print(paste("Reading",inputfile,Sys.time()))
-taxondata = read.table(inputfile, header=FALSE, sep="\t")
-print(paste("Done",Sys.time()))
+taxondata_raw = read.table(inputfile, header=FALSE, sep="\t")
+print(paste("Done reading from file",Sys.time()))
+
+if ( dim(taxondata_raw)[2] > 1 ) {
+	print(paste("Detected extended format, using column",dim(taxondata_raw)[2],Sys.time()))
+}
+taxondata = taxondata_raw[,dim(taxondata_raw)[2]]
 
 # remove items that are None, as those have actual species
 taxondata_filt = taxondata[taxondata!="None"]

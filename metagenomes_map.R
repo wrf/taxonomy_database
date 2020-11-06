@@ -3,6 +3,11 @@
 
 library(maps)
 
+# for placenames
+# http://www.geonames.org/export/
+# https://download.geonames.org/export/dump/
+# data dump on  2020-10-26 10:35 349M has 12051898 lines
+
 
 #inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.tab"
 inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20200924.metagenomes_latlon-fixed.tab"
@@ -41,18 +46,19 @@ metagenome_type = sub(" metagenome", "", metagenomedata[["V13"]])
 #                 includes "ant fungus garden" and "termitarium"
 # watercols       is all aquatic habitats, lakes, rivers, and frozen water bodies "ice" "snow" etc
 #                 includes "groundwater", "rock porewater", "hydrothermal vent", "cold seep" (could be with earth)
+#                 DOES NOT include "drinking water", "ballast water", "interstitial water", "aquaculture"
 # earthcols       is all land or earth sources
 #                 includes some ambiguous terms: "sediment", "marine sediment", "freshwater sediment", "alkali sediment"
 #                 "soil" (could be agricultural?), "peat" "bog" (could be aquatic)
 # industcols      is anything of manmade processes, environmental cleaning, industrial operations
 #                 also includes things related to petrol, fuels
-#                 includes "wastewater", "drinking water", "ballast water" (aquatic sources?)
+#                 includes "wastewater", "drinking water", "ballast water", "interstitial water" (aquatic sources?)
 #                 and "cow dung", "manure" (could be with guts?)
 # electriccols    effectively a subset of industcols, things explicitly related to electrically active environments
 # citycols        is manmade environments, surfaces, and common objects
 # aircol          is air and related
 # microbecols     is some microbial terms like biofilms or mats, but also microbial interactions
-#                 includes some ambiguous terms: "eukaryotic plankton" (could be plant or animal?), "ecological" (no idea)
+#                 includes some ambiguous terms: "eukaryotic plankton" (could be plant or animal?), "ecologicals" (no idea)
 # foodcols        is specific food processes or foodstuffs
 # plasticcols     is just to separate plastics from citycols
 # synthcols       is probably experimental/artificial microbial communities
@@ -62,21 +68,23 @@ humancols = c("human", "human oral", "human nasopharyngeal", "human skin", "huma
 gutscols = c("gut", "feces", "human gut", "mouse gut", "rat gut", "bovine gut", "pig gut", "sheep gut", "chicken gut", "insect gut", "fish gut", "invertebrate gut", "shrimp gut", "termite gut")
 miscbodycols = c("skin", "lung", "stomach", "vaginal", "oral", "milk", "respiratory tract", "upper respiratory tract", "oral-nasopharyngeal", "urogenital", "reproductive system", "placenta", "urine", "eye", "blood", "liver", "internal organ", "semen", "urinary tract")
 mar_animalcols = c("coral", "coral reef", "fish", "gill", "sponge", "crustacean", "crab", "mollusc", "oyster", "marine plankton", "sea anemone", "jellyfish", "echinoderm", "starfish", "sea urchin", "zebrafish", "sea squirt", "cetacean", "annelid", "ctenophore", "egg")
-ter_animalcols = c("primate", "mouse", "mouse skin", "rat", "rodent", "shrew", "bat", "canine", "feline", "bovine", "ovine", "sheep", "pig", "marsupial", "koala", "frog", "amphibian", "bird", "snake", "insect", "insect nest", "honeybee", "tick", "mite", "ant", "mosquito", "spider", "beetle", "termite", "invertebrate", "nematode", "parasite", "whole organism")
-plantcols = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "algae", "dinoflagellate", "macroalgae", "seagrass", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "phycosphere", "termitarium", "psyllid")
+ter_animalcols = c("primate", "mouse", "mouse skin", "rat", "rodent", "shrew", "bat", "canine", "feline", "bovine", "ovine", "sheep", "pig", "marsupial", "koala", "frog", "amphibian", "bird", "snake", "insect", "insect nest", "honeybee", "tick", "mite", "ant", "mosquito", "spider", "beetle", "termite", "termitarium", "invertebrate", "nematode", "parasite", "whole organism")
+plantcols = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "algae", "dinoflagellate", "macroalgae", "seagrass", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "phycosphere", "psyllid")
 watercols = c("marine", "freshwater", "aquatic", "seawater", "groundwater", "rock porewater", "aquifer", "lake water", "pond", "lagoon", "oasis", "riverine", "estuary", "tidal flat", "wetland", "hot springs", "cold spring", "salt marsh", "rice paddy", "mangrove", "soda lake", "salt lake", "hypersaline lake", "saline spring", "saltern", "brine", "hydrothermal vent", "cold seep", "ice", "snow", "glacier", "glacier lake", "permafrost", "anchialine")
 earthcols = c("soil", "soil crust", "terrestrial", "rock", "sediment", "marine sediment", "freshwater sediment", "alkali sediment", "subsurface", "sand", "beach sand", "peat", "bog", "halite", "volcano", "stromatolite", "cave", "fossil", "mud", "hypolithon", "clay")
 industcols = c("wastewater", "bioreactor", "fermentation", "retting", "activated sludge", "anaerobic digester", "sludge", "bioreactor sludge", "decomposition", "biogas fermenter", "cow dung", "manure", "biofilter", "silage", "hydrocarbon", "oil", "crude oil", "oil field", "oil sands", "oil production facility", "gas well", "fuel tank", "coal", "tar pit", "mine", "mine drainage", "mine tailings", "landfill", "industrial waste", "solid waste", "bioleaching", "biosolids", "poultry litter", "soda lime", "activated carbon", "drinking water", "salt mine", "salt pan", "fertilizer", "biofloc", "ballast water", "shale gas", "interstitial water", "aquaculture")
 electriccols = c("microbial fuel cell", "bioanode", "biocathode", "electrolysis cell")
 citycols = c("indoor", "dust", "urban", "hospital", "clinical", "surface", "money", "steel", "factory", "concrete", "paper pulp", "painting", "parchment", "HVAC", "museum specimen", "medical device", "tomb wall")
 aircols = c("air", "aerosol", "outdoor", "cloud")
-microbecols = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecological", "eukaryotic")
+microbecols = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecologicals", "eukaryotic")
 foodcols = c("food", "food production", "food fermentation", "honey", "wine", "probiotic", "dietary supplements", "grain", "food contamination")
 plasticcols = c("plastisphere", "plastic", "flotsam")
 synthcols = c("synthetic")
+unclasscols = c("metagenome")
+
 
 # check if there are new categories between versions
-all_categories = c(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, watercols, earthcols, industcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols)
+all_categories = c(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, watercols, earthcols, industcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols, unclasscols)
 metagenome_cat_table = table(metagenome_type)
 not_found_categories = is.na( match( names(metagenome_cat_table), all_categories ) )
 new_categories = names(metagenome_cat_table)[not_found_categories]
@@ -107,6 +115,7 @@ colorvec[which(!is.na(match(metagenome_type, microbecols)))] = "#de851b"
 colorvec[which(!is.na(match(metagenome_type, foodcols)))] = "#de851b"
 # plasticcols stay gray
 # synthcols stay gray
+# unclass stay gray
 
 
 
@@ -115,7 +124,7 @@ colorvec[which(!is.na(match(metagenome_type, foodcols)))] = "#de851b"
 
 # for all categories
 # WARNING MAP IS LARGE
-# DUE TO APPX 600k POINTS
+# DUE TO APPX 1051k POINTS
 # AND DOES NOT RENDER QUICKLY
 #
 #pdf( file="~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.pdf", height=12, width=24)
@@ -162,10 +171,10 @@ dev.off()
 
 # make multiple plots, one for each year
 #
-yearset = c("2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019")
+yearset = c("2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
 num_years = length(yearset)
 for (i in seq(1,num_years)) {
-	png_by_year_file = paste0("~/git/taxonomy_database/images/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.earth-",yearset[i],".png")
+	png_by_year_file = paste0("~/git/taxonomy_database/images/NCBI_SRA_Metadata_Full_20200924.metagenomes_latlon-",yearset[i],".png")
 	png( file=png_by_year_file, height=500, width=1000)
 	worldmap = map('world', fill=TRUE, col="#ededed", border="#898989", mar=c(0.1,0.1,0.1,0.1) )
 	# color past years dark
@@ -182,7 +191,7 @@ for (i in seq(1,num_years)) {
 
 # then run convert from imagemagick
 # cd ~/git/taxonomy_database/images/
-# convert -delay 90 NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.earth-20??.png -loop 0 NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon.earth_01-19.gif
+# convert -delay 90 NCBI_SRA_Metadata_Full_20200924.metagenomes_latlon-20??.png -loop 0 NCBI_SRA_Metadata_Full_20200924.metagenomes_latlon.earth_01-20.gif
 
 
 

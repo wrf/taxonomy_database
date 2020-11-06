@@ -6,6 +6,7 @@ library(shiny)
 library(maps)
 
 inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20200924.metagenomes_latlon-fixed.tab"
+#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20200924.metagenomes_latlon-fixed.h20k.tab"
 
 #                  1              2               3             4                 5              6           7
 mgd_colunm_headers = c("sra_sample", "sample_alias", "accession", "ncbi_id", "ncbi_category","latitude","longitude",
@@ -19,7 +20,7 @@ metagenomedata = read.table(inputfilename, header=FALSE, sep="\t", stringsAsFact
 # pull sorting variables from datatable
 meta_latitude = as.numeric(metagenomedata[["latitude"]])
 meta_longitude = as.numeric(metagenomedata[["longitude"]])
-meta_year = metagenomedata[["year"]]
+meta_year = as.integer(metagenomedata[["year"]])
 
 # remove the word metagenome from the categories
 metagenome_type = sub(" metagenome", "", metagenomedata[["category"]])
@@ -29,18 +30,19 @@ humancols = c("human", "human oral", "human nasopharyngeal", "human skin", "huma
 gutscols = c("gut", "feces", "human gut", "mouse gut", "rat gut", "bovine gut", "pig gut", "sheep gut", "chicken gut", "insect gut", "fish gut", "invertebrate gut", "shrimp gut", "termite gut")
 miscbodycols = c("skin", "lung", "stomach", "vaginal", "oral", "milk", "respiratory tract", "upper respiratory tract", "oral-nasopharyngeal", "urogenital", "reproductive system", "placenta", "urine", "eye", "blood", "liver", "internal organ", "semen", "urinary tract")
 mar_animalcols = c("coral", "coral reef", "fish", "gill", "sponge", "crustacean", "crab", "mollusc", "oyster", "marine plankton", "sea anemone", "jellyfish", "echinoderm", "starfish", "sea urchin", "zebrafish", "sea squirt", "cetacean", "annelid", "ctenophore", "egg")
-ter_animalcols = c("primate", "mouse", "mouse skin", "rat", "rodent", "shrew", "bat", "canine", "feline", "bovine", "ovine", "sheep", "pig", "marsupial", "koala", "frog", "amphibian", "bird", "snake", "insect", "insect nest", "honeybee", "tick", "mite", "ant", "mosquito", "spider", "beetle", "termite", "invertebrate", "nematode", "parasite", "whole organism")
-plantcols = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "algae", "dinoflagellate", "macroalgae", "seagrass", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "phycosphere", "termitarium", "psyllid")
+ter_animalcols = c("primate", "mouse", "mouse skin", "rat", "rodent", "shrew", "bat", "canine", "feline", "bovine", "ovine", "sheep", "pig", "marsupial", "koala", "frog", "amphibian", "bird", "snake", "insect", "insect nest", "honeybee", "tick", "mite", "ant", "mosquito", "spider", "beetle", "termite", "termitarium", "invertebrate", "nematode", "parasite", "whole organism")
+plantcols = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "algae", "dinoflagellate", "macroalgae", "seagrass", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "phycosphere", "psyllid")
 watercols = c("marine", "freshwater", "aquatic", "seawater", "groundwater", "rock porewater", "aquifer", "lake water", "pond", "lagoon", "oasis", "riverine", "estuary", "tidal flat", "wetland", "hot springs", "cold spring", "salt marsh", "rice paddy", "mangrove", "soda lake", "salt lake", "hypersaline lake", "saline spring", "saltern", "brine", "hydrothermal vent", "cold seep", "ice", "snow", "glacier", "glacier lake", "permafrost", "anchialine")
 earthcols = c("soil", "soil crust", "terrestrial", "rock", "sediment", "marine sediment", "freshwater sediment", "alkali sediment", "subsurface", "sand", "beach sand", "peat", "bog", "halite", "volcano", "stromatolite", "cave", "fossil", "mud", "hypolithon", "clay")
 industcols = c("wastewater", "bioreactor", "fermentation", "retting", "activated sludge", "anaerobic digester", "sludge", "bioreactor sludge", "decomposition", "biogas fermenter", "cow dung", "manure", "biofilter", "silage", "hydrocarbon", "oil", "crude oil", "oil field", "oil sands", "oil production facility", "gas well", "fuel tank", "coal", "tar pit", "mine", "mine drainage", "mine tailings", "landfill", "industrial waste", "solid waste", "bioleaching", "biosolids", "poultry litter", "soda lime", "activated carbon", "drinking water", "salt mine", "salt pan", "fertilizer", "biofloc", "ballast water", "shale gas", "interstitial water", "aquaculture")
 electriccols = c("microbial fuel cell", "bioanode", "biocathode", "electrolysis cell")
 citycols = c("indoor", "dust", "urban", "hospital", "clinical", "surface", "money", "steel", "factory", "concrete", "paper pulp", "painting", "parchment", "HVAC", "museum specimen", "medical device", "tomb wall")
 aircols = c("air", "aerosol", "outdoor", "cloud")
-microbecols = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecological", "eukaryotic")
+microbecols = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecologicals", "eukaryotic")
 foodcols = c("food", "food production", "food fermentation", "honey", "wine", "probiotic", "dietary supplements", "grain", "food contamination")
 plasticcols = c("plastisphere", "plastic", "flotsam")
-synthcols = c("synthetic", "metagenome")
+synthcols = c("synthetic")
+unclasscols = c("metagenome")
 
 # determine colors for all points
 colorvec = rep("#989898", length(metagenome_type))
@@ -60,15 +62,16 @@ colorvec[which(!is.na(match(metagenome_type, microbecols)))] = "#de851b"
 colorvec[which(!is.na(match(metagenome_type, foodcols)))] = "#de851b"
 # plasticcols stay gray
 # synthcols stay gray
+# unclass stay gray
 
 # establish some values for downstream processing
 #
-all_categories = c(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, watercols, earthcols, industcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols)
+all_categories = c(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, watercols, earthcols, industcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols, unclasscols)
 # get number of items per category
-all_categories_list = list(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, watercols, earthcols, industcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols)
+all_categories_list = list(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, watercols, earthcols, industcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols, unclasscols)
 items_per_cat = unlist(lapply(all_categories_list,length))
 # assign numbers for each category to all metagenomes
-all_cat_numerical_values = rep(1:16,items_per_cat)
+all_cat_numerical_values = rep( seq(1,length(all_categories_list),1), items_per_cat)
 metagenome_type_code = all_cat_numerical_values[match(metagenome_type,all_categories)]
 
 # Define UI for app that draws a histogram ----
@@ -95,13 +98,19 @@ ui <- fluidPage(
                          max = 180,
                          value = c(-180,180)
                         ),
-             actionButton("resetView", "Reset View")
+             sliderInput(inputId = "year",
+                         label = "Year",
+                         min = 1990,
+                         max = 2020,
+                         value = c(1990,2020),
+                         sep=""
+             )
              ),
       column(4,
              checkboxGroupInput("cats1", 
                                 h3("Metagenome categories"), 
                                 choices = list("Human" = 1, "Guts" = 2, "Other body" = 3,
-                                               "Marine animals" = 4, "Terrestrial animals" = 5, "Plants" = 6,
+                                               "Aquatic animals" = 4, "Terrestrial animals" = 5, "Plants" = 6,
                                                "Water (any)" = 7, "Earth (any)" = 8),
                                 selected = 6)),
       column(4, 
@@ -109,7 +118,7 @@ ui <- fluidPage(
                                 choices = list("Industrial process" = 9,
                                                "Electrical process" = 10, "City environment" = 11, "Air" = 12,
                                                "Microbial process" = 13, "Food" = 14, "Plastic" = 15,
-                                               "Synthetic" = 16)
+                                               "Synthetic" = 16, "Unclassified" = 17)
                                ))
     ),
 
@@ -119,7 +128,6 @@ ui <- fluidPage(
       plotOutput(outputId = "worldMap",
                  click = "plot_click",
                  brush = brushOpts(id = "plot_brush")
-                 #brush = brushOpts(id = "plot_brush", resetOnNew = TRUE)
                  ),
       tableOutput("sampleInfo")
     #  verbatimTextOutput("sampleInfo")
@@ -127,32 +135,34 @@ ui <- fluidPage(
   )
 )
 
-# Define server logic required to draw a histogram ----
+#
 server <- function(input, output) {
 
-  
   output$worldMap <- renderPlot({
-
+    # define map bounds from the imputs
     longrange = input$long
     latrange = input$lat
+    yearrange = input$year
 
     # make subset of points
-    selected_values = c(input$cats1, input$cats2)
-    is_selected = which(!is.na(match(metagenome_type_code, selected_values ) ) )
+    user_selected_values = c(input$cats1, input$cats2)
+    is_selected = which( match(metagenome_type_code, user_selected_values ) & ( meta_year >= yearrange[1] ) & (meta_year <= yearrange[2]) )
     sub_lats = meta_latitude[is_selected]
     sub_longs = meta_longitude[is_selected]
     sub_colors = colorvec[is_selected]
-        
-    worldmap = map('world', xlim=longrange, ylim=latrange, fill=TRUE, col="#dedede", mar=c(0.1,0.1,0.1,0.1),)
+    
+    # generate the map
+    worldmap = map('world', xlim=longrange, ylim=latrange, fill=TRUE, col="#dedede", mar=c(0.1,0.1,0.1,0.1) )
     lines( input$long, c(0,0), lwd=0.5,col="#00000022")
     lines( c(0,0), input$lat, lwd=0.5,col="#00000022")
     points( sub_longs, sub_lats, bg=sub_colors, pch=21, cex=1.5)
-    
+    text(longrange[1], latrange[2]-diff(latrange)*0.01, paste("samples:", length(sub_colors)), pos=4)
   })
+  
   output$sampleInfo <- renderTable({
     # make subset of the big table, so only selected categories are brushed over
-    selected_values = c(input$cats1, input$cats2)
-    is_selected = which(!is.na(match(metagenome_type_code, selected_values ) ) )
+    user_selected_values = c(input$cats1, input$cats2)
+    is_selected = which(!is.na(match(metagenome_type_code, user_selected_values ) ) )
     sub_table = metagenomedata[is_selected,]
 
     brushedPoints(sub_table, input$plot_brush, xvar = "longitude", yvar = "latitude")

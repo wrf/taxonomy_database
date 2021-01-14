@@ -2,7 +2,7 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.0 last modified 2020-09-29
+'''parse_long_sra_metadata.py v1.0 last modified 2021-01-14
 
 parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
 
@@ -19,26 +19,27 @@ tar -tzf NCBI_SRA_Metadata_Full_20180402.tar.gz | more
     this will print up to 100 warnings
     to inspect individual elements in the .tar.gz, use -zxf
 tar -zxf NCBI_SRA_Metadata_Full_20190914.tar.gz SRA406976
-
+tar -zxf NCBI_SRA_Metadata_Full_20210104.tar.gz ERS861219
 '''
 
 import sys
 import time
 import tarfile
 import unicodedata
+from collections import Counter
 import xml.etree.ElementTree as ET
 
 # for interactive Python debug:
 debug='''
 import tarfile
 import xml.etree.ElementTree as ET
-srafile = "NCBI_SRA_Metadata_Full_20191130.tar.gz"
+srafile = "NCBI_SRA_Metadata_Full_20210104.tar.gz"
 metadata = tarfile.open(name=srafile, mode="r:gz")
 member = metadata.next()
 member.isdir()
 samplename = "{0}/{0}.sample.xml".format(member.name)
-fex = metadata.extractfile(samplename)
-xmltree = ET.fromstring(fex.read())
+sam_fex = metadata.extractfile(samplename)
+xmltree = ET.fromstring(sam_fex.read())
 xl = xmltree.getchildren()
 sample = xl[0]
 sl = sample.getchildren()
@@ -57,25 +58,36 @@ sl[4].getchildren()[0].getchildren()[1].text
 '''
 
 if len(sys.argv) < 2:
-	sys.stderr.write(sys.stderr)
+	sys.stderr.write(__doc__)
 else:
 	starttime = time.time()
-	sys.stderr.write("# parsing metadata from {}  {}\n".format( sys.argv[1], time.asctime() ) )
-	metadata = tarfile.open(name=sys.argv[1], mode="r:gz")
+
 	samplecounter = 0
 	foldercounter = 0
 	nonfolders = 0
 	nosamplecounter = 0
 	WARNMAX = 100
 	lastnonfolder = ""
+
+	sample_attribute_counter = Counter()
+
+	sys.stderr.write("# parsing metadata from {}  {}\n".format( sys.argv[1], time.asctime() ) )
+	metadata = tarfile.open(name=sys.argv[1], mode="r:gz")
 	for member in metadata.getmembers():
 		if member.isdir():
 			foldercounter += 1
+
+			experimentname = "" ### TODO
+			# library strategy possibilities include:
+			# WGA WGS WXS RNA-Seq miRNA-Seq WCS CLONE POOLCLONE AMPLICON CLONEEND
+			# library source
+			# GENOMIC TRANSCRIPTOMIC METAGENOMIC METATRANSCRIPTOMIC SYNTHETIC VIRAL RNA OTHER
+
 			samplename = "{0}/{0}.sample.xml".format(member.name)
 			if not foldercounter % 100000:
 				sys.stderr.write("# {} folders  {}\n".format(foldercounter, time.asctime() ) )
 			try:
-				fex = metadata.extractfile(samplename)
+				sam_fex = metadata.extractfile(samplename)
 			except KeyError:
 				nosamplecounter += 1
 				if nosamplecounter < WARNMAX:
@@ -84,7 +96,7 @@ else:
 					sys.stderr.write("# {} WARNINGS, WILL NOT DISPLAY MORE  {}\n".format(WARNMAX, time.asctime() ) )
 				continue
 			#sys.stderr.write("# reading sample info from {}\n".format(samplename))
-			xmltree = ET.fromstring(fex.read())
+			xmltree = ET.fromstring(sam_fex.read())
 			xl = xmltree.getchildren() # should be SAMPLE_SET of 1 or more SAMPLE
 			#sys.stderr.write("{}\n".format(samplename))
 			for sample in xl:
@@ -117,6 +129,10 @@ else:
 						# caused UnicodeEncodeError due to '\xa0' in some strings
 						# '\xa0' apparently is a non-standard space
 							samplealias = "ERROR"
+				# add attributes to Counter
+				# this may be necessary for future debugging, as some attibutes may not be identical between meta data packages on SRA
+				sample_attribute_counter.update( sampleattrs.keys() )
+
 				# accession should be the SRA number, like SRA070055
 				accession = sample.attrib.get("accession",None)
 
@@ -134,6 +150,9 @@ else:
 			lastnonfolder = member.name
 			nonfolders += 1
 
+	# close tarfile
+	metadata.close()
+
 	# report stats of total run
 	if nosamplecounter > WARNMAX:
 		sys.stderr.write("# Last folder was {}, {}  {}\n".format(foldercounter, samplename, time.asctime() ) )
@@ -143,5 +162,8 @@ else:
 		sys.stderr.write("# Found {} members not in folders, last one was {}\n".format(nonfolders, lastnonfolder) )
 	if nosamplecounter:
 		sys.stderr.write("# Could not find samples for {} folders\n".format( nosamplecounter ) )
-	metadata.close()
+	# report table of attributes
+	sys.stderr.write("### Common attributes included:\n")
+	for k,v in sample_attribute_counter.items():
+		sys.stderr.write("{}\t{}\n".format( k,v ) )
 

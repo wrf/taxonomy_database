@@ -2,7 +2,7 @@
 #
 # parse_ncbi_taxonomy.py  created by WRF 2018-04-05
 
-'''parse_ncbi_taxonomy.py  last modified 2020-03-04
+'''parse_ncbi_taxonomy.py  last modified 2021-04-11
 
 parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i species_list.txt
 
@@ -26,6 +26,7 @@ import csv
 import sys
 import os
 import time
+import gzip
 import argparse
 
 #nodes.dmp
@@ -151,10 +152,17 @@ def main(argv, wayout):
 	skippedentries = 0 # skipped for --unique or --metagenomes-only
 	foundentries = 0
 	writecount = 0
-	sys.stderr.write("# reading species IDs from {}  {}\n".format(args.input, time.asctime() ) )
+
+	inputfilename = args.input
+	if inputfilename.rsplit('.',1)[-1]=="gz": # autodetect gzip format
+		opentype = gzip.open
+		sys.stderr.write("# reading species IDs from {} as gzipped  {}\n".format(inputfilename, time.asctime() ) )
+	else: # otherwise assume normal open for fasta format
+		opentype = open
+		sys.stderr.write("# reading species IDs from {}  {}\n".format(inputfilename, time.asctime() ) )
 	# meaning parse NCBI WGS csv file
 	if args.csv:
-		with open(args.input,'r') as csvfile:
+		with opentype(inputfilename,'rt') as csvfile:
 			ncbicsv = csv.reader(csvfile)
 			for lsplits in ncbicsv:
 				speciesname = lsplits[4]
@@ -180,7 +188,7 @@ def main(argv, wayout):
 				sys.stdout.write( outputstring )
 	# parse tabular output
 	else:
-		for line in open(args.input,'r'):
+		for line in opentype(inputfilename,'rt'):
 			line = line.strip()
 			if line:
 				# if reading directly from 4-column samples file, extract sample ID
@@ -221,7 +229,9 @@ def main(argv, wayout):
 							skippedentries += 1
 							continue
 						cleaned_line = clean_name(line)
-						outputstring = "{}\t{}\n".format( cleaned_line, speciesname )
+						# column is redundant with ncbi_category, remove "metagenome" for ease of later indexing
+						metagenome_category = speciesname.replace("metagenome","").strip()
+						outputstring = "{}\t{}\n".format( cleaned_line, metagenome_category )
 					else: # normal mode
 						finalnodes = get_parent_tree(node_id, node_to_rank, node_to_parent)
 						outputstring = "{}\t{}\t{}\t{}\n".format( speciesname, node_to_name.get(finalnodes[0],"None"), node_to_name.get(finalnodes[1],"None"), node_to_name.get(finalnodes[2],"None") )

@@ -2,7 +2,8 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.0 last modified 2021-01-14
+'''parse_long_sra_metadata.py v1.1 last modified 2021-04-12
+    parses the SRA metadata tar.gz file, makes a 12-column text table
 
 parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
 
@@ -62,30 +63,61 @@ if len(sys.argv) < 2:
 else:
 	starttime = time.time()
 
-	samplecounter = 0
+	membercounter = 0
 	foldercounter = 0
-	nonfolders = 0
-	nosamplecounter = 0
-	WARNMAX = 100
+	nonfolders = 0 # probably other files like run.xml submission.xml
 	lastnonfolder = ""
 
+	samplecounter = 0
+	exptcounter = 0
+	noexptcounter = 0
+	nosamplecounter = 0
+
+	WARNMAX = 100
+
+	expt_attribute_counter = Counter()
 	sample_attribute_counter = Counter()
 
 	sys.stderr.write("# parsing metadata from {}  {}\n".format( sys.argv[1], time.asctime() ) )
 	metadata = tarfile.open(name=sys.argv[1], mode="r:gz")
 	for member in metadata.getmembers():
+		membercounter += 1
 		if member.isdir():
 			foldercounter += 1
+			if not foldercounter % 100000:
+				sys.stderr.write("# {} folders  {}\n".format(foldercounter, time.asctime() ) )
 
-			experimentname = "" ### TODO
+			# extract experiment information, to allow later sorting of genomic, RNAseq, amplicon, etc
 			# library strategy possibilities include:
 			# WGA WGS WXS RNA-Seq miRNA-Seq WCS CLONE POOLCLONE AMPLICON CLONEEND
+			# whole genome assembly; whole genome sequencing; whole exome sequencing; RNA-Seq; micro RNA sequencing
+			# whole chromosome random sequencing;
+			experimentname = "{0}/{0}.experiment.xml".format(member.name)
+			try:
+				exp_fex = metadata.extractfile(experimentname)
+			except KeyError:
+				noexptcounter += 1
+				exp_fex = None
+				# do not skip entry, check sample first
+			if exp_fex is not None:
+				library_attrs = {} # reset each folder
+				exp_xmltree = ET.fromstring(exp_fex.read())
+				expxl = exp_xmltree.getchildren()
+				for exptdata in expxl:
+					exptcounter += 1
+					el = exptdata.getchildren()
+					for einfo in el: # iterate through IDENTIFIERS TITLE STUDY_REF DESIGN PLATFORM PROCESSING
+						if einfo.tag=="DESIGN":
+							for subattr in einfo.getchildren():
+								if subattr.tag=="LIBRARY_DESCRIPTOR":
+									for subsubattr in subattr.getchildren(): # contains LIBRARY_LAYOUT LIBRARY_NAME LIBRARY_STRATEGY LIBRARY_SOURCE LIBRARY_SELECTION}
+										library_attrs[subsubattr.tag] = subsubattr.text.strip()
+				expt_attribute_counter.update( library_attrs.keys() )
 			# library source
 			# GENOMIC TRANSCRIPTOMIC METAGENOMIC METATRANSCRIPTOMIC SYNTHETIC VIRAL RNA OTHER
 
+			# extract sample information, metagenome categories, latlon, date, etc
 			samplename = "{0}/{0}.sample.xml".format(member.name)
-			if not foldercounter % 100000:
-				sys.stderr.write("# {} folders  {}\n".format(foldercounter, time.asctime() ) )
 			try:
 				sam_fex = metadata.extractfile(samplename)
 			except KeyError:
@@ -96,10 +128,10 @@ else:
 					sys.stderr.write("# {} WARNINGS, WILL NOT DISPLAY MORE  {}\n".format(WARNMAX, time.asctime() ) )
 				continue
 			#sys.stderr.write("# reading sample info from {}\n".format(samplename))
-			xmltree = ET.fromstring(sam_fex.read())
-			xl = xmltree.getchildren() # should be SAMPLE_SET of 1 or more SAMPLE
+			sam_xmltree = ET.fromstring(sam_fex.read())
+			samxl = sam_xmltree.getchildren() # should be SAMPLE_SET of 1 or more SAMPLE
 			#sys.stderr.write("{}\n".format(samplename))
-			for sample in xl:
+			for sample in samxl:
 				samplecounter += 1
 				sl = sample.getchildren()
 				# should be [<Element 'IDENTIFIERS' at 0x7fe2b5879dd0>, <Element 'TITLE' at 0x7fe2b5879e90>, <Element 'SAMPLE_NAME' at 0x7fe2b5879ed0>, <Element 'DESCRIPTION' at 0x7fe2b5879fd0>, <Element 'SAMPLE_LINKS' at 0x7fe2b5885050>, <Element 'SAMPLE_ATTRIBUTES' at 0x7fe2b58851d0>]
@@ -141,7 +173,9 @@ else:
 					continue
 				# print line
 				try:
-					outline = u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format( member.name, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
+					sample_columns = u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format( member.name, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
+					expt_columns = u"{}\t{}\t{}".format( library_attrs.get("LIBRARY_STRATEGY","NA"), library_attrs.get("LIBRARY_SOURCE","NA"), library_attrs.get("LIBRARY_SELECTION","NA") )
+					outline = u"{}\t{}\n".format(sample_columns, expt_columns)
 					norm_outline = unicodedata.normalize('NFKD', outline).encode("ascii",errors="replace")
 					sys.stdout.write( norm_outline )
 				except UnicodeEncodeError:
@@ -157,13 +191,18 @@ else:
 	if nosamplecounter > WARNMAX:
 		sys.stderr.write("# Last folder was {}, {}  {}\n".format(foldercounter, samplename, time.asctime() ) )
 	sys.stderr.write("# Process completed in {:.1f} minutes\n".format( (time.time()-starttime)/60 ) )
-	sys.stderr.write("# Found {} folders, and {} samples\n".format( foldercounter , samplecounter ) )
+	sys.stderr.write("# Found {} members with {} folders, for {} samples and {} experiments\n".format( membercounter, foldercounter , samplecounter, exptcounter ) )
 	if nonfolders: # if any files were not in the normal SRA format folders
-		sys.stderr.write("# Found {} members not in folders, last one was {}\n".format(nonfolders, lastnonfolder) )
+		sys.stderr.write("# Found {} files, last one was {}\n".format( nonfolders, lastnonfolder) )
+	if noexptcounter:
+		sys.stderr.write("# Could not experimental details for {} folders\n".format( noexptcounter ) )
 	if nosamplecounter:
 		sys.stderr.write("# Could not find samples for {} folders\n".format( nosamplecounter ) )
 	# report table of attributes
-	sys.stderr.write("### Common attributes included:\n")
+	sys.stderr.write("### Common sample attributes included:\n")
 	for k,v in sample_attribute_counter.items():
+		sys.stderr.write("{}\t{}\n".format( k,v ) )
+	sys.stderr.write("### Common expt design attributes included:\n")
+	for k,v in expt_attribute_counter.items():
 		sys.stderr.write("{}\t{}\n".format( k,v ) )
 

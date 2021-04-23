@@ -2,7 +2,7 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.1 last modified 2021-04-12
+'''parse_long_sra_metadata.py v1.1 last modified 2021-04-23
     parses the SRA metadata tar.gz file, makes a 12-column text table
 
 parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
@@ -111,7 +111,9 @@ else:
 							for subattr in einfo.getchildren():
 								if subattr.tag=="LIBRARY_DESCRIPTOR":
 									for subsubattr in subattr.getchildren(): # contains LIBRARY_LAYOUT LIBRARY_NAME LIBRARY_STRATEGY LIBRARY_SOURCE LIBRARY_SELECTION}
-										library_attrs[subsubattr.tag] = subsubattr.text.strip()
+										subsubattr_text = subsubattr.text
+										if subsubattr_text is not None:
+											library_attrs[subsubattr.tag] = subsubattr.text.strip()
 				expt_attribute_counter.update( library_attrs.keys() )
 			# library source
 			# GENOMIC TRANSCRIPTOMIC METAGENOMIC METATRANSCRIPTOMIC SYNTHETIC VIRAL RNA OTHER

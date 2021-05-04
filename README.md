@@ -8,6 +8,7 @@ Scripts are written for Python and R. Below, I detail how I made:
 * plot of species diversity, by taxonomic rank (bacteria dominate)
 * [plot](https://github.com/wrf/taxonomy_database#metagenomic-samples) of most common sources of metagenomes (human and gut samples dominate, then soil, then water)
 * [map](https://github.com/wrf/taxonomy_database#map-of-metagenomes) of global distribution of metagenomic samples (can be modified to show any category)
+* [interactive map app](https://github.com/wrf/taxonomy_database#shinyapp-of-metagenomes) of the distribution of metagenomic samples, using [RShiny](https://shiny.rstudio.com/tutorial/) and [leaflet](https://rstudio.github.io/leaflet/)
 
 ## NCBI transcriptome assemblies ##
 The master list of the transcriptome shotgun archive can be found below, though the embedded links only download a GenBank format file:
@@ -183,5 +184,52 @@ The output is an extended tabular file, where latlon has been split to 2 columns
 The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/subsurface2017/downloads/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon_v1.tab.gz). This may be updated later to include approximate locations when the location tag is given (for cities, parks, rock formations, et cetera).
 
 This is used within the R script [metagenomes_map.R](https://github.com/wrf/taxonomy_database/blob/master/metagenomes_map.R). Due to the large number of points, it is better to use interactively.
+
+### Shinyapp of metagenomes ###
+I had attempted two versions of an interactive app, one with the base [shiny](https://github.com/wrf/taxonomy_database/blob/master/Rshiny/app.R) package, and the other using the fancier [leaflet](https://github.com/wrf/taxonomy_database/blob/master/leaflet/app.R). The `leaflet` one is far better, with easy scrolling, sample popups, satellite view, and most of the transparency is handled by the app. However, it lacks the `brushedPoints()` feature of the base plotting, so the sample table just shows all samples within the current view, which might be a lot.
+
+This is a merged screenshot of the `leaflet` version:
+
+![metagenomes_leaflet_screenshot.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/metagenomes_leaflet_screenshot.jpg)
+
+With so many packages, there are often compatibility issues, so here is the `sessionInfo()`:
+
+```
+R version 3.6.3 (2020-02-29)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 16.04.7 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/libblas/libblas.so.3.6.0
+LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8       
+ [4] LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C              
+[10] LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] DT_0.17         dplyr_1.0.5     leaflet_2.0.4.1 shiny_1.6.0    
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.6              pillar_1.5.1            compiler_3.6.3         
+ [4] bslib_0.2.4             later_1.1.0.1           jquerylib_0.1.3        
+ [7] tools_3.6.3             digest_0.6.27           jsonlite_1.7.2         
+[10] lifecycle_1.0.0         tibble_3.1.0            pkgconfig_2.0.3        
+[13] rlang_0.4.10            rstudioapi_0.13         cli_2.3.1              
+[16] DBI_1.1.1               crosstalk_1.1.1         yaml_2.2.1             
+[19] fastmap_1.1.0           withr_2.4.1             leaflet.providers_1.9.0
+[22] generics_0.1.0          vctrs_0.3.6             htmlwidgets_1.5.3      
+[25] sass_0.3.1              tidyselect_1.1.0        glue_1.4.2             
+[28] R6_2.5.0                fansi_0.4.2             purrr_0.3.4            
+[31] magrittr_2.0.1          promises_1.2.0.1        ellipsis_0.3.1         
+[34] htmltools_0.5.1.1       assertthat_0.2.1        mime_0.10              
+[37] xtable_1.8-4            httpuv_1.5.5            utf8_1.2.1             
+[40] cachem_1.0.4            crayon_1.4.1          
+```
 
 

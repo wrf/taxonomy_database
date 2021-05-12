@@ -2,7 +2,7 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.1 last modified 2021-05-11
+'''parse_long_sra_metadata.py v1.1 last modified 2021-05-12
     parses the SRA metadata tar.gz file, makes a 12-column text table
 
 parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
@@ -99,7 +99,7 @@ else:
 
 	# is .tar or .tar.gz
 	elif os.path.isfile(sra_metadata_source):
-		if sra_metadata_tar.rsplit(".",1)[-1]==".gz":
+		if sra_metadata_source.rsplit(".",1)[-1]==".gz":
 			tar_openmode = "r:gz"
 		else:
 			tar_openmode = "r"
@@ -131,13 +131,10 @@ else:
 			experimentname = "{1}{0}/{0}.experiment.xml".format( membername, leading_folder )
 			try:
 				exp_fex = fex_open(experimentname)
-			except IOError: # meaning using glob mode
+			except (IOError, KeyError) as ex: # meaning using glob mode, or tar.gz mode, respectively
 				noexptcounter += 1
 				exp_fex = None
 				# do not skip entry, check sample first
-			except KeyError: # using tar.gz mode
-				noexptcounter += 1
-				exp_fex = None
 			if exp_fex is not None:
 				library_attrs = {} # reset each folder
 				exp_xmltree = ET.fromstring(exp_fex.read())
@@ -161,14 +158,7 @@ else:
 			samplename = "{1}{0}/{0}.sample.xml".format( membername, leading_folder )
 			try:
 				sam_fex = fex_open(samplename)
-			except IOError: # meaning using glob mode
-				nosamplecounter += 1
-				if nosamplecounter < WARNMAX:
-					sys.stderr.write("WARNING: CANNOT FIND ITEM {}, {}, SKIPPING  {}\n".format(foldercounter, samplename, time.asctime() ) )
-				elif nosamplecounter == WARNMAX:
-					sys.stderr.write("# {} WARNINGS, WILL NOT DISPLAY MORE  {}\n".format(WARNMAX, time.asctime() ) )
-				continue
-			except KeyError: # using tar.gz mode
+			except (IOError, KeyError) as ex: # meaning using glob mode, or tar.gz mode, respectively
 				nosamplecounter += 1
 				if nosamplecounter < WARNMAX:
 					sys.stderr.write("WARNING: CANNOT FIND ITEM {}, {}, SKIPPING  {}\n".format(foldercounter, samplename, time.asctime() ) )

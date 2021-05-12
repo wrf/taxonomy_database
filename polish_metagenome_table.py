@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# coding: utf-8
 # polish_metagenome_table.py
 
 '''polish_metagenome_table.py  last modified 2020-10-23

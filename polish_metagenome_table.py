@@ -5,15 +5,22 @@
 '''polish_metagenome_table.py  last modified 2020-10-23
     tidy up formats, fix lat-long info
 
-polish_metagenome_table.py metagenomes_ext.tab > metagenomes_latlon-fixed.tab
+polish_metagenome_table.py -i metagenomes_ext.tab > metagenomes_latlon-fixed.tab
 
     table generated from parse_ncbi_taxonomy.py, as:
 parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i NCBI_SRA_Metadata_Full_20191130.sample_w_cat.tab --metagenomes-only --numbers --samples > NCBI_SRA_Metadata_Full_20191130.metagenomes_w_cat.tab
 
+    for placenames:
+    http://www.geonames.org/export/
+    https://download.geonames.org/export/dump/
+
 '''
+
+
 
 import sys
 import re
+import argparse
 
 def two_part_latlon(latlon, debug=False):
 	'''take latlon with any two part split, and return the true latitude and longitude'''
@@ -449,8 +456,6 @@ def four_part_latlon(latlon, debug=False):
 	return None, None
 
 
-
-
 def fix_date_formats(rawdate):
 
 	# https://submit.ncbi.nlm.nih.gov/biosample/template/?package=Invertebrate.1.0&action=definition
@@ -497,15 +502,38 @@ def fix_date_formats(rawdate):
 	return "0000-00-00"
 
 
+def parse_geonames():
+	'''read GeoNames file'''
+	# data dump on 2020-10-26 10:35 349M has 12051898 lines
+
+    # 0         1                   2                   3                               4           5       6   7   8      9  10 11 12  13  14  15  16      17              18
+	#geonameid  name                asciiname           alternatenames                  latitude    longitude   feature code  ad1   ad3     population      timezone        modified date
+	#                                                                                                       feature class  cc2  ad2     ad4     elevation
+	#                                                                                                               country code                    dem
+	#2986043	Pic de Font Blanca	Pic de Font Blanca	Pic de Font Blanca,Pic du Port	42.64991	1.53335	T	PK	AD		00				0		2860	Europe/Andorra	2014-11-05
+	#2994701	Roc Mélé	Roc Mele	Roc Mele,Roc Meler,Roc Mélé	42.58765	1.74028	T	MT	AD	AD,FR	00				0		2803	Europe/Andorra	2020-06-10
+	#3007683	Pic des Langounelles	Pic des Langounelles	Pic des Langounelles	42.61203	1.47364	TPK	AD	AD,FR	00				0		2685	Europe/Andorra	2014-11-05
+	#3017832	Pic de les Abelletes	Pic de les Abelletes	Pic de la Font-Negre,Pic de la Font-Nègre,Pic de les Abelletes	42.52535	1.73343	T	PK	AD	FR	A9	66	663	66146	02411	Europe/Andorra	2014-11-05
+	#3017833	Estany de les Abelletes	Estany de les Abelletes	Estany de les Abelletes,Etang de Font-Negre,Étang de Font-Nègre	42.52915	1.73362	H	LK	AD	FR	A9				02260	Europe/Andorra	2014-11-05
+
+	name_to_latlon = {}
+	alternatename_to_name = {}
+
 
 # BEGIN MAIN CODE BLOCK
 ##################################################
 ##################################################
 
+def main(argv, wayout):
+	if not len(argv):
+		argv.append('-h')
+	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__)
+	parser.add_argument('-i','--input', help="raw SRA extended metadata file, from parse_ncbi_taxonomy.py")
+	parser.add_argument('-g','--geonames', help="optional GeoNames data, from allCountries.txt")
+	parser.add_argument('--verbose', action="store_true", help="make verbose")
+	args = parser.parse_args(argv)
 
-if len(sys.argv) < 2:
-	sys.exit( __doc__ )
-else:
+
 	#
 	# FIX LAT-LON INFORMATION
 	#
@@ -537,8 +565,8 @@ else:
 
 	entry_count = 0
 	print_count = 0
-	sys.stderr.write("# Reading {}\n".format(sys.argv[1]) )
-	for line in open(sys.argv[1],'r'):
+	sys.stderr.write("# Reading {}\n".format(args.input) )
+	for line in open(args.input,'r'):
 		entry_count += 1
 
 		# basic pattern should split line into 10 columns
@@ -666,6 +694,11 @@ else:
 	# count fixes of non standard formats
 	weird_fixes = one_part_fix + two_part_fix + four_part_fix + six_part_fix
 
+
+	# VALIDATE lat-lon for a given site
+	
+
+
 	# report final latlon stats
 	sys.stderr.write("# Counted {} entries, wrote {} entries\n".format(entry_count, print_count) )
 	if void_counter:
@@ -689,4 +722,6 @@ else:
 	if strange_date:
 		sys.stderr.write("# {} entries had improbable sample dates (before 1990)\n".format(strange_date) )
 
-#
+
+if __name__ == "__main__":
+	main(sys.argv[1:], sys.stdout)

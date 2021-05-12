@@ -63,7 +63,7 @@ colorvec[match(earthcols, names(top100))] = "#8e8662"
 colorvec[match(industcols, names(top100))] = "#7c4e0d"
 colorvec[match(electriccols, names(top100))] = "#fed976"
 # citycols stay gray
-colorvec[match(aircol, names(top100))] = "#6cbd96"
+colorvec[match(aircols, names(top100))] = "#6cbd96"
 colorvec[match(microbecols, names(top100))] = "#de851b"
 colorvec[match(foodcols, names(top100))] = "#de851b"
 # plasticcols stay gray

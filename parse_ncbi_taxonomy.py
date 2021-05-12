@@ -230,7 +230,7 @@ def main(argv, wayout):
 							continue
 						cleaned_line = clean_name(line)
 						# column is redundant with ncbi_category, remove "metagenome" for ease of later indexing
-						metagenome_category = speciesname.replace("metagenome","").strip()
+						metagenome_category = speciesname.replace(" metagenome","").strip()
 						outputstring = "{}\t{}\n".format( cleaned_line, metagenome_category )
 					else: # normal mode
 						finalnodes = get_parent_tree(node_id, node_to_rank, node_to_parent)

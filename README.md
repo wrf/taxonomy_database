@@ -30,6 +30,10 @@ NCBI Taxonomy files can be downloaded at from the `taxdump.tar.gz` file at:
 
 `ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/`
 
+The current, full link can be captured with:
+
+`wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz`
+
 ## using CSV from NCBI WGS ##
 On the [trace archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa), select only the `TSA` projects, and download the file `wgs_selector.csv` (renaming as desired).
 
@@ -75,17 +79,19 @@ $ head Paramacrobiotus_richtersi_GFGY01.renamed.fasta
 to preserve the information from Trinity components and allow better downstream identification of splice variants (perhaps from BLAST hits). This works for the vast majority of transcriptomes, which are assembled with Trinity, though it may be necessary to confirm for each sample.
 
 ## for all of NCBI SRA ##
-At the time of writing (Dec 2019) [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contains over 6.2M entries, accounting for [13 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (doubling from 6 petabases at the end of 2017). Chordates (mostly human samples, or mouse) account for over 2.5 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for almost 1.6 million.
+At the time of writing (May 2021) [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contains over 10M entries, accounting for [22 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (quadruple increase from 6 petabases at the end of 2017). Chordates (mostly human samples, or mouse) account for over 3.8 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for over 2.6 million.
 
-![NCBI_SRA_Metadata_Full_20191130.ncbi_ids_w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.ncbi_ids_w_kingdom.png)
+![NCBI_SRA_Metadata_Full_20210104.w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20210104.w_kingdom.png)
 
-The entire [metadata library of SRA can be downloaded](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=mirroring), and then parsed directly from the `.tar.gz` file (which is 1.8Gb). In general, the folder structure can be viewed from the tarball with:
+The entire [metadata library of SRA can be downloaded](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=mirroring), and then parsed directly from the `.tar.gz` file (which is several Gb). In general, the folder structure can be viewed from the tarball with:
 
 `tar -tzf NCBI_SRA_Metadata_Full_20180402.tar.gz | more`
 
-Reading from the archive took a long time (rather slowly over several days with 1 CPU). This generates a 4-column table containing: sample name, the SRA number, the NCBI Taxonomy number, the scientific name (species or environment). Based on the xml files present, a large number of folders do not have a `sample.xml` file, which creates a long list of warnings in the script. The STDERR is shown for the command below.
+Reading from the archive took a long time (rather slowly over several days with 1 CPU). As the file became rapidly larger over the years, and I was extracting more data from the archive, the run time approached a month yet still demanded around 20Gb of memory. Thus, a new version using glob on the unzipped archive was implemented. This trades time and memory for harddive space, as the zipped archive (April 2021) is 4.8Gb, while the unzipped archive is 169Gb (97% compression). It should be noted that `gzip -l` will not give accurate measures of compression rate for files this size.
 
-`parse_sra_metadata.py NCBI_SRA_Metadata_Full_20190914.tar.gz > NCBI_SRA_Metadata_Full_20190914.samples.tab 2> NCBI_SRA_Metadata_Full_20190914.samples.log`
+This [first version](https://github.com/wrf/taxonomy_database/blob/master/parse_sra_metadata.py) generated a 4-column table containing: sample name, the SRA number, the NCBI Taxonomy number, the scientific name (species or environment). It is now preferable for other operations to use [another script to produce a longer table](https://github.com/wrf/taxonomy_database/blob/master/parse_long_sra_metadata.py) of 12 columns for downstream analyses. Based on the xml files present, a large number of folders do not have a `sample.xml` file, which creates a long list of warnings in the script. An example STDERR is shown for the command below.
+
+`./parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20210104.tar.gz > NCBI_SRA_Metadata_Full_20210104.samples_ext.tab 2> NCBI_SRA_Metadata_Full_20210104.samples.log`
 
 ```
 # parsing metadata from NCBI_SRA_Metadata_Full_20190914.tar.gz  Wed Dec 11 12:24:59 2019
@@ -110,76 +116,65 @@ Reading from the archive took a long time (rather slowly over several days with 
 # Could not find samples for 182338 folders
 ```
 
-This produces a table that would look like:
+The long table (from `parse_long_sra_metadata.py`) is then processed with the taxonomy database to make a 4-column table, of species name, kingdom, phylum and class. This can be added to any existing spreadsheet or processed into the barplot. Here, the numbers are used as input by adding the option `--numbers` to `parse_ncbi_taxonomy.py`. This requires the NCBI Taxonomy data ([see above](https://github.com/wrf/taxonomy_database#adding-kingdom-etc))
 
-```
-PNUSAE012016	SRS3075518	562	Escherichia coli
-2672F-sc-2013-07-18T13:25:16Z-1668979	ERS327577	1773	Mycobacterium tuberculosis
-PRJEB19319	ERS1543308	182710	Oceanobacillus iheyensis
-```
+`./parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20210104.samples_ext.tab -n ~/db/taxonomy-2021-04-22/names.dmp -o ~/db/taxonomy-2021-04-22/nodes.dmp --numbers --samples --header > NCBI_SRA_Metadata_Full_20210104.w_kingdom.tab`
 
-Because the NCBI taxonomy numbers are also given, rather than just samples, those can be used instead to index the nodes in the taxonomy tree. The NCBI IDs (numbers) are extracted with the shell command `cut`, taking the third column:
-
-`cut -f 3 NCBI_SRA_Metadata_Full_20180402.samples.tab > NCBI_SRA_Metadata_Full_20180402.ncbi_ids.txt`
-
-This is then processed as above from the taxonomy database to make a 4-column table, of species name, kingdom, phylum and class. This can be added to any existing spreadsheet or processed into the barplot. Here, the numbers are used as input by adding the option `--numbers` to `parse_ncbi_taxonomy.py`. This requires the NCBI Taxonomy data ([see above](https://github.com/wrf/taxonomy_database#adding-kingdom-etc))
-
-`parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20180402.ncbi_ids.txt -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --numbers --header > NCBI_SRA_Metadata_Full_20180402.ncbi_ids_w_kingdom.tab`
-
-`Rscript taxon_barplot.R NCBI_SRA_Metadata_Full_20180402.ncbi_ids_w_kingdom.tab`
+`Rscript taxon_barplot.R NCBI_SRA_Metadata_Full_20210104.w_kingdom.tab`
 
 As the above command had counted each sample separately, species can instead be combined to give a sense of the species diversity. This is done by adding the `--unique` option to the `parse_ncbi_taxonomy.py` script.
 
-`parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20180402.ncbi_ids.txt -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp ~/db/taxonomy/merged.dmp --numbers --header --unique > NCBI_SRA_Metadata_Full_20180402.unique_ncbi_ids_w_king.tab`
+`./parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20210104.samples_ext.tab -n ~/db/taxonomy-2021-04-22/names.dmp -o ~/db/taxonomy-2021-04-22/nodes.dmp --numbers --samples --header --unique > NCBI_SRA_Metadata_Full_20210104.w_kingdom_unique.tab`
 
 The Rscript then creates the graph, displaying a similar pattern to the number of samples.
 
-`Rscript taxon_barplot.R NCBI_SRA_Metadata_Full_20180402.unique_ncbi_ids_w_king.tab`
+`Rscript taxon_barplot.R NCBI_SRA_Metadata_Full_20210104.w_kingdom_unique.tab`
 
-![NCBI_SRA_Metadata_Full_20191130.unique_ncbi_ids_w_king.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.unique_ncbi_ids_w_king.png)
+![NCBI_SRA_Metadata_Full_20210104.w_kingdom_unique.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20210104.w_kingdom_unique.png)
 
 ### Metagenomic samples ###
 
-Almost a quarter of the samples are metagenomic, i.e. those in the "None" category for kingdom, etc. These can be parsed out of the samples file, as the `names.dmp` contains specific numbers for a number of environmental or biological categories. The option `--metagenomes-only` restricts the analysis to the 258 current metagenomic numbers.
+Almost a quarter of the samples are metagenomic, i.e. those in the "None" category for kingdom, etc. These can be parsed out of the samples file, as the `names.dmp` contains specific numbers for a number of environmental or biological categories. The option `--metagenomes-only` restricts the analysis to the 333 current metagenomic numbers.
 
-`parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20181203.samples.tab -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --numbers --samples --metagenomes-only > NCBI_SRA_Metadata_Full_20181203.metagenomes.tab`
+`./parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20210104.samples_ext.tab -n ~/db/taxonomy-2021-04-22/names.dmp -o ~/db/taxonomy-2021-04-22/nodes.dmp --numbers --samples --metagenomes-only > NCBI_SRA_Metadata_Full_20210104.metagenomes.tab`
 
-This is again used as input for the Rscript, to generate another barplot. Obviously, human samples account for a major part, though apparently `soil` has taken the lead from 2018 to 2019.
+This is again used as input for the Rscript, to generate another barplot. Obviously, human samples account for a major part, though apparently `soil` has taken the lead from 2018 to 2019, but was overtaken again in 2020.
 
-`Rscript metagenomes_barplot.R NCBI_SRA_Metadata_Full_20181203.metagenomes.tab`
+`Rscript metagenomes_barplot.R NCBI_SRA_Metadata_Full_20210104.metagenomes.tab`
 
-![NCBI_SRA_Metadata_Full_20191130.metagenomes.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.metagenomes.png)
+![NCBI_SRA_Metadata_Full_20210104.metagenomes.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20210104.metagenomes.png)
 
 ### Map of metagenomes ###
 
 ![NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-sponge_water.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-sponge_water.png)
 
-To instead extract a longer table including location and latitude/longitude of each sample, use the alternate script. This produces a 9-column table, the same 4 as above, with scientific name, lat-lon, date, source, and location (as best given).
+The 12-column table (from `parse_long_sra_metadata.py`) includes scientific name, lat-lon, date, source, and location (as best given).
 
-`parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz > NCBI_SRA_Metadata_Full_20191130.sample_ext.tab`
+`./parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20210104.tar.gz > NCBI_SRA_Metadata_Full_20210104.samples_ext.tab 2> NCBI_SRA_Metadata_Full_20210104.samples.log`
 
-This is converted into the organized table including the category as a final column:
+This is converted into the organized 13-column table including the category as a final column:
 
-`./parse_ncbi_taxonomy.py -n ~/db/taxonomy-20191211/names.dmp -o ~/db/taxonomy-20191211/nodes.dmp -i NCBI_SRA_Metadata_Full_20191130.sample_ext.tab --metagenomes-only --numbers --samples > NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab`
+`./parse_ncbi_taxonomy.py -i NCBI_SRA_Metadata_Full_20210104.samples_ext.tab -n ~/db/taxonomy-2021-04-22/names.dmp -o ~/db/taxonomy-2021-04-22/nodes.dmp --numbers --samples --metagenomes-only > NCBI_SRA_Metadata_Full_20210104.metagenomes.tab`
 
 The latlon information contains a lot of errors due to different versions or missing data. This must be fixed. The same goes for the dates, which were supposed to be in one of a few formats, but can also be missing or contain errors.
 
-`polish_metagenome_table.py NCBI_SRA_Metadata_Full_20191130.metagenomes_ext.tab > NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-fixed.tab`
+`./polish_metagenome_table.py -i NCBI_SRA_Metadata_Full_20210104.metagenomes.tab > NCBI_SRA_Metadata_Full_20210104.metagenomes_latlon-fixed.tab`
 
 ```
-# Reading NCBI_SRA_Metadata_Full_20191130.metagenomes_w_member.tab
-# Counted 1131076 entries, wrote 686747 entries
-# 443173 entries did not include lat-lon (missing, not collected, etc.), removed
+# Reading NCBI_SRA_Metadata_Full_20210104.metagenomes.tab
+# Counted 2487285 entries, wrote 1179990 entries
+# 818175 entries had 'VOID' as lat-lon from previous steps, removed
+# 483825 entries did not include lat-lon (missing, not collected, etc.), removed
 # 106 entries had other values as lat-lon, removed
-# 1050 entries had an unknown format of lat-lon, removed
+# 5189 entries had an unknown format of lat-lon, removed
 # 50 entries had lat-lon as deg-min-sec format, fixed
 # 15 entries had lat-lon as a range, fixed
-# 1465 entries had unusual formats, fixed
-# 642470 entries had acceptable date format, 44277 were missing date
-# 334 entries had improbable sample dates (before 1990)
+# 2461 entries had unusual formats, fixed
+# 1084214 entries had acceptable date format, 95776 were missing date
+# 455 entries had improbable sample dates (before 1990)
 ```
 
-The output is an extended tabular file, where latlon has been split to 2 columns, and the date has been split into 3 (year month day). This makes it much easier to sort in R using the location or year.
+The output is an extended 16-column tabular file, where latlon has been split to 2 columns, and the date has been split into 3 (year month day). This makes it much easier to sort in R using the location or year.
 
 The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/subsurface2017/downloads/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon_v1.tab.gz). This may be updated later to include approximate locations when the location tag is given (for cities, parks, rock formations, et cetera).
 

@@ -2,7 +2,7 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.1 last modified 2021-04-23
+'''parse_long_sra_metadata.py v1.1 last modified 2021-05-11
     parses the SRA metadata tar.gz file, makes a 12-column text table
 
 parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
@@ -24,9 +24,11 @@ tar -zxf NCBI_SRA_Metadata_Full_20210104.tar.gz ERS861219
 '''
 
 import sys
+import os
 import time
 import tarfile
 import unicodedata
+from glob import iglob
 from collections import Counter
 import xml.etree.ElementTree as ET
 
@@ -75,14 +77,48 @@ else:
 
 	WARNMAX = 100
 
+	sra_is_glob = False
+	sra_is_tar = False
+
 	expt_attribute_counter = Counter()
 	sample_attribute_counter = Counter()
 
-	sys.stderr.write("# parsing metadata from {}  {}\n".format( sys.argv[1], time.asctime() ) )
-	metadata = tarfile.open(name=sys.argv[1], mode="r:gz")
-	for member in metadata.getmembers():
+	# check for .gz
+	sra_metadata_source = sys.argv[1]
+
+	# set up multiple variables and functions differently
+	# after the XML parsing step, everything is the same
+	if os.path.isdir(sra_metadata_source): # is unzipped dir, so must glob
+		metadata = os.path.join(sra_metadata_source, "*")
+		sra_iter_obj = iglob(metadata)
+		sra_is_glob = True
+		member_dir_check = lambda x: os.path.isdir(x)
+		fex_open = lambda x: open(x, 'r')
+		get_membername = lambda x: os.path.basename(x)
+		leading_folder = sra_metadata_source # so .xml names read as NCBI_SRA_Metadata_Full_20200924/SRA070055/SRA070055.sample.xml
+
+	# is .tar or .tar.gz
+	elif os.path.isfile(sra_metadata_source):
+		if sra_metadata_tar.rsplit(".",1)[-1]==".gz":
+			tar_openmode = "r:gz"
+		else:
+			tar_openmode = "r"
+		metadata = tarfile.open(name=sra_metadata_source, mode=tar_openmode)
+		sra_iter_obj = metadata.getmembers()
+		sra_is_tar = True
+		member_dir_check = lambda x: x.isdir()
+		fex_open = lambda x: metadata.extractfile(x)
+		get_membername = lambda x: x.name
+		leading_folder = "" # so that .xml names read as SRA070055/SRA070055.sample.xml
+
+	else: # should never occur
+		sys.exit("ERROR: cannot find file or folder {}".format(sra_metadata_source) )
+
+	sys.stderr.write("# parsing metadata from {}  {}\n".format( sra_metadata_source, time.asctime() ) )
+	for member in sra_iter_obj:
 		membercounter += 1
-		if member.isdir():
+		membername = get_membername(member)
+		if member_dir_check(member):
 			foldercounter += 1
 			if not foldercounter % 100000:
 				sys.stderr.write("# {} folders  {}\n".format(foldercounter, time.asctime() ) )
@@ -92,13 +128,16 @@ else:
 			# WGA WGS WXS RNA-Seq miRNA-Seq WCS CLONE POOLCLONE AMPLICON CLONEEND
 			# whole genome assembly; whole genome sequencing; whole exome sequencing; RNA-Seq; micro RNA sequencing
 			# whole chromosome random sequencing;
-			experimentname = "{0}/{0}.experiment.xml".format(member.name)
+			experimentname = "{1}{0}/{0}.experiment.xml".format( membername, leading_folder )
 			try:
-				exp_fex = metadata.extractfile(experimentname)
-			except KeyError:
+				exp_fex = fex_open(experimentname)
+			except IOError: # meaning using glob mode
 				noexptcounter += 1
 				exp_fex = None
 				# do not skip entry, check sample first
+			except KeyError: # using tar.gz mode
+				noexptcounter += 1
+				exp_fex = None
 			if exp_fex is not None:
 				library_attrs = {} # reset each folder
 				exp_xmltree = ET.fromstring(exp_fex.read())
@@ -119,10 +158,17 @@ else:
 			# GENOMIC TRANSCRIPTOMIC METAGENOMIC METATRANSCRIPTOMIC SYNTHETIC VIRAL RNA OTHER
 
 			# extract sample information, metagenome categories, latlon, date, etc
-			samplename = "{0}/{0}.sample.xml".format(member.name)
+			samplename = "{1}{0}/{0}.sample.xml".format( membername, leading_folder )
 			try:
-				sam_fex = metadata.extractfile(samplename)
-			except KeyError:
+				sam_fex = fex_open(samplename)
+			except IOError: # meaning using glob mode
+				nosamplecounter += 1
+				if nosamplecounter < WARNMAX:
+					sys.stderr.write("WARNING: CANNOT FIND ITEM {}, {}, SKIPPING  {}\n".format(foldercounter, samplename, time.asctime() ) )
+				elif nosamplecounter == WARNMAX:
+					sys.stderr.write("# {} WARNINGS, WILL NOT DISPLAY MORE  {}\n".format(WARNMAX, time.asctime() ) )
+				continue
+			except KeyError: # using tar.gz mode
 				nosamplecounter += 1
 				if nosamplecounter < WARNMAX:
 					sys.stderr.write("WARNING: CANNOT FIND ITEM {}, {}, SKIPPING  {}\n".format(foldercounter, samplename, time.asctime() ) )
@@ -175,7 +221,7 @@ else:
 					continue
 				# print line
 				try:
-					sample_columns = u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format( member.name, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
+					sample_columns = u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format( membername, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
 					expt_columns = u"{}\t{}\t{}".format( library_attrs.get("LIBRARY_STRATEGY","NA"), library_attrs.get("LIBRARY_SOURCE","NA"), library_attrs.get("LIBRARY_SELECTION","NA") )
 					outline = u"{}\t{}\n".format(sample_columns, expt_columns)
 					norm_outline = unicodedata.normalize('NFKD', outline).encode("ascii",errors="replace")
@@ -183,11 +229,9 @@ else:
 				except UnicodeEncodeError:
 					sys.stderr.write("WARNING: COULD NOT PROCESS UNICODE FOR {} ENTRY {}\n".format(accession, foldercounter) )
 		else: # meaning isdir() is false, so may be a file
-			lastnonfolder = member.name
+			lastnonfolder = membername
 			nonfolders += 1
 
-	# close tarfile
-	metadata.close()
 
 	# report stats of total run
 	if nosamplecounter > WARNMAX:

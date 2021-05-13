@@ -2,13 +2,21 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.1 last modified 2021-05-12
+'''parse_long_sra_metadata.py v1.1 last modified 2021-05-13
     parses the SRA metadata tar.gz file, makes a 12-column text table
 
-parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
+    you must unzip the .tar.gz file
+    NOTE: the compression is probably about 97%, so a 4Gb .tar.gz will expand to 130Gb
 
+mkdir 20210404_samples
+mv NCBI_SRA_Metadata_Full_20210404.tar.gz 20210404_samples/
+tar -zxpf 20210404_samples/NCBI_SRA_Metadata_Full_20210404.tar.gz
+parse_long_sra_metadata.py 20210404_samples/ > NCBI_SRA_Metadata_Full_20210404.sample_w_exp.tab 2> NCBI_SRA_Metadata_Full_20210404.sample_w_exp.log
+
+    original mode would directly parse the .tar.gz, this is still allowed
+parse_long_sra_metadata.py NCBI_SRA_Metadata_Full_20191130.tar.gz >  NCBI_SRA_Metadata_Full_20191130.sample_ext.tab
     NOTE: parsing metadata can be slow due to the tar.gz size
-      above run took appx 6 days
+      above run took between 6-30 days (as SRA increased 4x between 2018 and 2021)
 
     download SRA metadata from:
 ftp://ftp.ncbi.nlm.nih.gov/sra/reports/Metadata/
@@ -237,8 +245,13 @@ else:
 	# report table of attributes
 	sys.stderr.write("### Common sample attributes included:\n")
 	for k,v in sample_attribute_counter.items():
-		sys.stderr.write("{}\t{}\n".format( k,v ) )
+		try:
+			sys.stderr.write("{}\t{}\n".format( k,v ) )
+		except UnicodeEncodeError: # skip entry, including at least u'\xb0' (degree)
+			pass
 	sys.stderr.write("### Common expt design attributes included:\n")
 	for k,v in expt_attribute_counter.items():
-		sys.stderr.write("{}\t{}\n".format( k,v ) )
-
+		try:
+			sys.stderr.write("{}\t{}\n".format( k,v ) )
+		except UnicodeEncodeError:
+			pass

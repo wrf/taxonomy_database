@@ -1,7 +1,7 @@
 # sra/leaflet/app.R
 # make interactive map of SRA metagenomic samples
 # created by WRF 2021-04-11
-# last updated 2021-05-17
+# last updated 2021-05-22
 
 library(shiny)
 library(leaflet)
@@ -10,8 +10,8 @@ library(DT)
 
 # current host of this file at:
 # https://bitbucket.org/wrf/subsurface2017/downloads/
-inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.h100k.tab"
-#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.tab"
+#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.h100k.tab"
+inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.tab"
 
 # v1 headers          1              2               3             4                 5              6           7
 mgd_colunm_headers = c("sra_sample", "sample_alias", "accession", "ncbi_id", "ncbi_category","latitude","longitude",
@@ -111,10 +111,10 @@ sra_labels <- paste(sep = "<br/>",
 metagenomedata = cbind(metagenomedata, colorvec, sra_labels)
 
 #
-seq_lib_types = names(sort(table(taxondata_raw[,10]), decreasing=TRUE))
+seq_lib_types = names(sort(table(metagenomedata[["seq_type"]]), decreasing=TRUE))
 seq_lib_types_choices = c("All types", seq_lib_types )
 #
-seq_lib_sources = names(sort(table(taxondata_raw[,11]), decreasing=TRUE) )
+seq_lib_sources = names(sort(table(metagenomedata[["seq_source"]]), decreasing=TRUE) )
 seq_lib_sources_choices = c("All sources", seq_lib_sources )
 #
 

@@ -2,7 +2,7 @@
 #
 # parse_ncbi_taxonomy.py  created by WRF 2018-04-05
 
-'''parse_ncbi_taxonomy.py  last modified 2021-04-11
+'''parse_ncbi_taxonomy.py  last modified 2021-05-18
 
 parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i species_list.txt
 
@@ -128,7 +128,7 @@ def main(argv, wayout):
 	if not len(argv):
 		argv.append('-h')
 	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__)
-	parser.add_argument('-i','--input', help="text file of species names")
+	parser.add_argument('-i','--input', help="text file of species names, can be .gz")
 	parser.add_argument('-n','--names', help="NCBI taxonomy names.dmp")
 	parser.add_argument('-o','--nodes', nargs="*", help="NCBI taxonomy nodes.dmp, and possibly merged.dmp")
 	parser.add_argument('--csv', action="store_true", help="read directly from NCBI WGS csv file")

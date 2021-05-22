@@ -64,27 +64,30 @@ metagenome_type = sub(" metagenome", "", metagenomedata[["V13"]])
 # synthcols       is probably experimental/artificial microbial communities
 
 # set up color categories
-humancols = c("human", "human oral", "human nasopharyngeal", "human skin", "human vaginal", "human reproductive system", "human lung", "human milk", "human blood", "human tracheal", "human saliva", "human eye", "human bile", "human sputum", "human semen", "human skeleton", "human urinary tract")
-gutscols = c("gut", "feces", "human gut", "mouse gut", "rat gut", "bovine gut", "pig gut", "sheep gut", "chicken gut", "insect gut", "fish gut", "invertebrate gut", "shrimp gut", "termite gut")
-miscbodycols = c("skin", "lung", "stomach", "vaginal", "oral", "milk", "respiratory tract", "upper respiratory tract", "oral-nasopharyngeal", "urogenital", "reproductive system", "placenta", "urine", "eye", "blood", "liver", "internal organ", "semen", "urinary tract")
-mar_animalcols = c("coral", "coral reef", "fish", "gill", "sponge", "crustacean", "crab", "mollusc", "oyster", "marine plankton", "sea anemone", "jellyfish", "echinoderm", "starfish", "sea urchin", "zebrafish", "sea squirt", "cetacean", "annelid", "ctenophore", "egg")
-ter_animalcols = c("primate", "mouse", "mouse skin", "rat", "rodent", "shrew", "bat", "canine", "feline", "bovine", "ovine", "sheep", "pig", "marsupial", "koala", "frog", "amphibian", "bird", "snake", "insect", "insect nest", "honeybee", "tick", "mite", "ant", "mosquito", "spider", "beetle", "termite", "termitarium", "invertebrate", "nematode", "parasite", "whole organism")
-plantcols = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "algae", "dinoflagellate", "macroalgae", "seagrass", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "phycosphere", "psyllid")
-watercols = c("marine", "freshwater", "aquatic", "seawater", "groundwater", "rock porewater", "aquifer", "lake water", "pond", "lagoon", "oasis", "riverine", "estuary", "tidal flat", "wetland", "hot springs", "cold spring", "salt marsh", "rice paddy", "mangrove", "soda lake", "salt lake", "hypersaline lake", "saline spring", "saltern", "brine", "hydrothermal vent", "cold seep", "ice", "snow", "glacier", "glacier lake", "permafrost", "anchialine")
-earthcols = c("soil", "soil crust", "terrestrial", "rock", "sediment", "marine sediment", "freshwater sediment", "alkali sediment", "subsurface", "sand", "beach sand", "peat", "bog", "halite", "volcano", "stromatolite", "cave", "fossil", "mud", "hypolithon", "clay")
-industcols = c("wastewater", "bioreactor", "fermentation", "retting", "activated sludge", "anaerobic digester", "sludge", "bioreactor sludge", "decomposition", "biogas fermenter", "cow dung", "manure", "biofilter", "silage", "hydrocarbon", "oil", "crude oil", "oil field", "oil sands", "oil production facility", "gas well", "fuel tank", "coal", "tar pit", "mine", "mine drainage", "mine tailings", "landfill", "industrial waste", "solid waste", "bioleaching", "biosolids", "poultry litter", "soda lime", "activated carbon", "drinking water", "salt mine", "salt pan", "fertilizer", "biofloc", "ballast water", "shale gas", "interstitial water", "aquaculture")
+humancols = c("human", "human oral", "human nasopharyngeal", "human skin", "human vaginal", "human reproductive system", "human lung", "human milk", "human blood", "human tracheal", "human saliva", "human eye", "human bile", "human sputum", "human semen", "human skeleton", "human urinary tract", "human brain","human viral")
+gutscols = c("gut", "feces", "human gut", "human feces", "mouse gut", "rat gut", "bovine gut", "pig gut", "sheep gut", "chicken gut", "insect gut", "fish gut", "invertebrate gut", "shrimp gut", "termite gut")
+miscbodycols = c("skin", "lung", "stomach", "vaginal", "oral", "milk", "respiratory tract", "upper respiratory tract", "oral-nasopharyngeal", "urogenital", "reproductive system", "placenta", "urine", "eye", "blood", "liver", "internal organ", "semen", "urinary tract", "granuloma", "ear")
+mar_animalcols = c("coral", "coral reef", "fish", "gill", "sponge", "crustacean", "crab", "mollusc", "oyster", "marine plankton", "sea anemone", "jellyfish", "hydrozoan", "echinoderm", "starfish", "sea urchin", "zebrafish", "sea squirt", "cetacean", "annelid", "ctenophore", "egg")
+ter_animalcols = c("primate", "mouse", "mouse skin", "rat", "rodent", "shrew", "bat", "canine", "feline", "bovine", "ovine", "sheep", "pig", "horse", "musk", "marsupial", "koala", "frog", "amphibian", "bird", "snake", "insect", "insect nest", "honeybee", "wasp", "tick", "mite", "ant", "mosquito", "spider", "beetle", "termite", "termitarium", "invertebrate", "nematode", "parasite", "whole organism")
+plantcols = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "psyllid", "termite fungus garden", "plant fiber")
+algaecols = c("algae", "dinoflagellate", "macroalgae", "seagrass", "phycosphere", "periphyton")
+saltwatercols = c("seawater", "marine", "estuary", "hydrothermal vent", "cold seep")
+watercols = c("freshwater", "aquatic", "groundwater", "rock porewater", "aquifer", "lake water", "pond", "lagoon", "oasis", "riverine", "tidal flat", "wetland", "hot springs", "cold spring", "salt marsh", "rice paddy", "mangrove", "soda lake", "salt lake", "hypersaline lake", "saline spring", "saltern", "brine", "ice", "snow", "glacier", "glacier lake", "permafrost", "anchialine")
+earthcols = c("soil", "soil crust", "terrestrial", "rock", "sediment", "marine sediment", "freshwater sediment", "alkali sediment", "subsurface", "sand", "beach sand", "peat", "bog", "halite", "volcano", "stromatolite", "cave", "fossil", "mud", "hypolithon", "clay", "bentonite")
+industcols = c("wastewater", "bioreactor", "fermentation", "retting", "activated sludge", "anaerobic digester", "sludge", "bioreactor sludge", "decomposition", "biogas fermenter", "cow dung", "manure", "biofilter", "silage", "mine", "mine drainage", "mine tailings", "landfill", "industrial waste", "solid waste", "bioleaching", "biosolids", "poultry litter", "soda lime", "activated carbon", "drinking water", "salt mine", "salt pan", "fertilizer", "biofloc", "ballast water", "interstitial water", "aquaculture", "chemical production", "runoff")
+petrolcols = c("hydrocarbon", "oil", "crude oil", "oil field", "oil sands", "oil production facility", "gas well", "fuel tank", "coal", "tar pit", "shale gas")
 electriccols = c("microbial fuel cell", "bioanode", "biocathode", "electrolysis cell")
-citycols = c("indoor", "dust", "urban", "hospital", "clinical", "surface", "money", "steel", "factory", "concrete", "paper pulp", "painting", "parchment", "HVAC", "museum specimen", "medical device", "tomb wall")
+citycols = c("indoor", "dust", "urban", "hospital", "clinical", "surface", "money", "steel", "factory", "concrete", "paper pulp", "painting", "parchment", "HVAC", "museum specimen", "medical device", "tomb wall", "book", "power plant")
 aircols = c("air", "aerosol", "outdoor", "cloud")
-microbecols = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecologicals", "eukaryotic")
-foodcols = c("food", "food production", "food fermentation", "honey", "wine", "probiotic", "dietary supplements", "grain", "food contamination")
-plasticcols = c("plastisphere", "plastic", "flotsam")
+microbecols = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecological", "ecologicals", "eukaryotic", "microbial eukaryotic", "organismals")
+foodcols = c("food", "food production", "food fermentation", "honey", "wine", "probiotic", "dietary supplements", "grain", "food contamination", "herbal medicine")
+plasticcols = c("plastisphere", "plastic", "flotsam", "nutrient bag")
 synthcols = c("synthetic")
-unclasscols = c("metagenome")
+unclasscols = c("metagenome", "metagenomes")
 
 
 # check if there are new categories between versions
-all_categories = c(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, watercols, earthcols, industcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols, unclasscols)
+all_categories = c(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, algaecols, saltwatercols, watercols, earthcols, industcols, petrolcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols, unclasscols)
 metagenome_cat_table = table(metagenome_type)
 not_found_categories = is.na( match( names(metagenome_cat_table), all_categories ) )
 new_categories = names(metagenome_cat_table)[not_found_categories]
@@ -95,7 +98,16 @@ new_categories
 # [6] "human skeleton"      "human urinary tract" "interstitial water"  "medical device"      "metagenome"         
 #[11] "metagenomes"         "organismals"         "phycosphere"         "psyllid"             "semen"              
 #[16] "shale gas"           "termitarium"         "tomb wall"           "urinary tract"  
-
+# as of 2021-05-18
+# names(metagenomes)[not_found_categories]
+# [1] "chemical production"   "plant fiber"           "power plant"          
+# [4] "musk"                  "book"                  "runoff"               
+# [7] "wasp"                  "nutrient bag"          "granuloma"            
+# [10] "herbal medicine"       "microbial eukaryotic"  "hydrozoan"            
+# [13] "termite fungus garden" "periphyton"            "human brain"          
+# [16] "bentonite"             "human viral"           "horse"                
+# [19] "ecologicals"           "human feces"           "ear"                  
+# [22] "organismals"           "metagenomes"    
 
 # determine colors for all points
 colorvec = rep("#989898", length(metagenome_type))
@@ -105,9 +117,12 @@ colorvec[which(!is.na(match(metagenome_type, miscbodycols)))] = "#bf04a7"
 colorvec[which(!is.na(match(metagenome_type, mar_animalcols)))] = "#9354cf"
 colorvec[which(!is.na(match(metagenome_type, ter_animalcols)))] = "#d10b0b"
 colorvec[which(!is.na(match(metagenome_type, plantcols)))] = "#18d025"
+colorvec[which(!is.na(match(metagenome_type, algaecols)))] = "#18d025"
+colorvec[which(!is.na(match(metagenome_type, saltwatercols)))] = "#45c5f4"
 colorvec[which(!is.na(match(metagenome_type, watercols)))] = "#45c5f4"
 colorvec[which(!is.na(match(metagenome_type, earthcols)))] = "#8e8662"
 colorvec[which(!is.na(match(metagenome_type, industcols)))] = "#7c4e0d"
+colorvec[which(!is.na(match(metagenome_type, petrolcols)))] = "#7c4e0d"
 colorvec[which(!is.na(match(metagenome_type, electriccols)))] = "#fed976"
 # citycols stay gray
 colorvec[which(!is.na(match(metagenome_type, aircols)))] = "#6cbd96"
@@ -116,7 +131,6 @@ colorvec[which(!is.na(match(metagenome_type, foodcols)))] = "#de851b"
 # plasticcols stay gray
 # synthcols stay gray
 # unclass stay gray
-
 
 
 # draw the maps

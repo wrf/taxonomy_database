@@ -176,9 +176,9 @@ The latlon information contains a lot of errors due to different versions or mis
 
 The output is an extended 16-column tabular file, where latlon has been split to 2 columns, and the date has been split into 3 (year month day). This makes it much easier to sort in R using the location or year.
 
-The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/subsurface2017/downloads/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon_v1.tab.gz). This may be updated later to include approximate locations when the location tag is given (for cities, parks, rock formations, et cetera).
+The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/datasets/downloads/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon_v1.tab.gz). This may be updated later to include approximate locations when the location tag is given (for cities, parks, rock formations, et cetera).
 
-This is used within the R script [metagenomes_map.R](https://github.com/wrf/taxonomy_database/blob/master/metagenomes_map.R). Due to the large number of points, it is better to use interactively.
+This is used within the R script [metagenomes_map.R](https://github.com/wrf/taxonomy_database/blob/master/metagenomes_map.R). Due to the large number of points, it is better to use interactively, with the version below.
 
 ### Shinyapp of metagenomes ###
 I had attempted two versions of an interactive app, one with the base [shiny](https://github.com/wrf/taxonomy_database/blob/master/Rshiny/app.R) package, and the other using the fancier [leaflet](https://github.com/wrf/taxonomy_database/blob/master/leaflet/app.R). The `leaflet` one is far better, with easy scrolling, sample popups, satellite view, and most of the transparency is handled by the app. However, it lacks the `brushedPoints()` feature of the base plotting, so the sample table just shows all samples within the current view, which might be a lot.

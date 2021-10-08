@@ -1,7 +1,7 @@
 # sra/leaflet/app.R
 # make interactive map of SRA metagenomic samples
 # created by WRF 2021-04-11
-# last updated 2021-05-22
+# last updated 2021-10-08
 
 library(shiny)
 library(leaflet)
@@ -188,6 +188,7 @@ ui <- fluidPage(
       leafletOutput(outputId = "worldMap", height=700),
       verbatimTextOutput(outputId = "debug"), 
       h3("Selected sub-categories:"),
+      textOutput(outputId = "totalsamples"), 
       verbatimTextOutput(outputId = "catInfo"), 
       # verbatimTextOutput(outputId = "mapBounds"), 
       h3("Samples in current view, zoom to change or filter"),
@@ -231,6 +232,8 @@ server <- function(input, output) {
                                        seq_source %in% lib_source_selected )
   })
   
+  # display total samples in categories selected
+  output$totalsamples <- renderText({ paste("Total samples:", sum( table(get_selected_samples()$category) ) ) })
   # display table() of total samples per category
   output$catInfo <- renderPrint({ table(get_selected_samples()$category ) })
   

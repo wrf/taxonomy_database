@@ -1,7 +1,7 @@
 # sra/leaflet/app.R
 # make interactive map of SRA metagenomic samples
 # created by WRF 2021-04-11
-# last updated 2021-10-08
+# last updated 2022-01-07
 
 library(shiny)
 library(leaflet)
@@ -11,7 +11,8 @@ library(DT)
 # current host of this file at:
 # https://bitbucket.org/wrf/subsurface2017/downloads/
 #inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.h100k.tab"
-inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.tab"
+#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.tab"
+inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes.loc_test.tab"
 
 # v1 headers          1              2               3             4                 5              6           7
 mgd_colunm_headers = c("sra_sample", "sample_alias", "accession", "ncbi_id", "ncbi_category","latitude","longitude",
@@ -239,7 +240,7 @@ server <- function(input, output) {
   
   # draw map
   output$worldMap <- renderLeaflet({
-    leaflet( options=leafletOptions( minZoom=2, worldCopyJump=TRUE ) ) %>% 
+    leaflet( options=leafletOptions( minZoom=2, worldCopyJump=TRUE, preferCanvas=TRUE ) ) %>% 
       setView(lng=0, lat=35, zoom=4) %>% 
       addProviderTiles( get_tileset_choice() ) %>%
       addScaleBar("bottomright")

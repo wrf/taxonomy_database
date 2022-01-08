@@ -227,4 +227,12 @@ loaded via a namespace (and not attached):
 [40] cachem_1.0.4            crayon_1.4.1          
 ```
 
+### Gallery of errors ###
+Among the most common user-entered errors is swapping NS or EW. Longitude 0 would be in London, so most of Europe/Asia is E, meaning +X, while the Americas would be W, meaning -X. Here are a few samples that should be E and are given longitude W.
+
+![lat-lon_e-w_mirror_image_error.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/lat-lon_e-w_mirror_image_error.jpg)
+
+Another obvious error is the presence of these stripes of samples, almost looking like oceanic transects. Each sample has an increasing latitude of the one before by exactly 1 unit, likely due to a drag-copy incrementing introduced by Excel. Probably, the submitters intended to copy some of the metadata fields in the spreadsheet before submitting to NCBI, not realizing that it would copy the text but try to increment numbers wherever it could.
+
+![excel_drag_copy_error_screenshot.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/excel_drag_copy_error_screenshot.jpg)
 

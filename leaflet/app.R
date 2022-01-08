@@ -1,7 +1,7 @@
 # sra/leaflet/app.R
 # make interactive map of SRA metagenomic samples
 # created by WRF 2021-04-11
-# last updated 2022-01-07
+# last updated 2022-01-08
 
 library(shiny)
 library(leaflet)
@@ -118,8 +118,9 @@ seq_lib_types_choices = c("All types", seq_lib_types )
 seq_lib_sources = names(sort(table(metagenomedata[["seq_source"]]), decreasing=TRUE) )
 seq_lib_sources_choices = c("All sources", seq_lib_sources )
 #
-
-
+seq_sel_methods = names(sort(table(metagenomedata[["seq_selection"]]), decreasing=TRUE))
+seq_sel_methods_choices = c("All methods", seq_sel_methods )
+#
 
 print( "# Starting user interface" )
 # begin actual shiny code
@@ -179,7 +180,10 @@ ui <- fluidPage(
                                                "Microbial process" = 16, "Food" = 17, 
                                                "Plastic" = 18, "Synthetic" = 19, 
                                                "Unclassified" = 20)
-                               )
+                               ),
+             selectInput("libselection", "Library Selection (PCR, ChIP, RANDOM, etc.)", 
+                         choices = seq_sel_methods_choices
+             )   
              )
     ),
 
@@ -227,10 +231,15 @@ server <- function(input, output) {
     if (input$libsource == "All sources") {
       lib_source_selected = seq_lib_sources
     } else {lib_source_selected = input$libsource}
+    if (input$libselection == "All methods") {
+      lib_selection_selected = seq_sel_methods
+    } else {lib_selection_selected = input$libselection}
+    # actual filtering is here
     selected_samples = dplyr::filter(metagenomedata, category %in% selected_cats &
                                        year %in% year_range &
                                        seq_type %in% lib_type_selected &
-                                       seq_source %in% lib_source_selected )
+                                       seq_source %in% lib_source_selected &
+                                       seq_selection %in% lib_selection_selected )
   })
   
   # display total samples in categories selected

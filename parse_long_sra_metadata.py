@@ -2,7 +2,7 @@
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
 
-'''parse_long_sra_metadata.py v1.1 last modified 2021-05-13
+'''parse_long_sra_metadata.py v1.2 last modified 2021-01-10
     parses the SRA metadata tar.gz file, makes a 12-column text table
 
     you must unzip the .tar.gz file
@@ -143,21 +143,25 @@ else:
 				noexptcounter += 1
 				exp_fex = None
 				# do not skip entry, check sample first
+			library_attrs = {} # reset each folder
 			if exp_fex is not None:
-				library_attrs = {} # reset each folder
 				exp_xmltree = ET.fromstring(exp_fex.read())
-				expxl = exp_xmltree.getchildren()
-				for exptdata in expxl:
-					exptcounter += 1
-					el = exptdata.getchildren()
-					for einfo in el: # iterate through IDENTIFIERS TITLE STUDY_REF DESIGN PLATFORM PROCESSING
-						if einfo.tag=="DESIGN":
-							for subattr in einfo.getchildren():
-								if subattr.tag=="LIBRARY_DESCRIPTOR":
-									for subsubattr in subattr.getchildren(): # contains LIBRARY_LAYOUT LIBRARY_NAME LIBRARY_STRATEGY LIBRARY_SOURCE LIBRARY_SELECTION}
-										subsubattr_text = subsubattr.text
-										if subsubattr_text is not None:
-											library_attrs[subsubattr.tag] = subsubattr.text.strip()
+				exptcounter += 1
+				for exp_elem in exp_xmltree.iter():
+					if exp_elem.text:
+						library_attrs[exp_elem.tag] = exp_elem.text.strip()
+			# .getchildren() DEPRICATED in python3
+			#	expxl = exp_xmltree.getchildren()
+			#	for exptdata in expxl:
+			#		el = exptdata.getchildren()
+			#		for einfo in el: # iterate through IDENTIFIERS TITLE STUDY_REF DESIGN PLATFORM PROCESSING
+			#			if einfo.tag=="DESIGN":
+			#				for subattr in einfo.getchildren():
+			#					if subattr.tag=="LIBRARY_DESCRIPTOR":
+			#						for subsubattr in subattr.getchildren(): # contains LIBRARY_LAYOUT LIBRARY_NAME LIBRARY_STRATEGY LIBRARY_SOURCE LIBRARY_SELECTION}
+			#							subsubattr_text = subsubattr.text
+			#							if subsubattr_text is not None:
+			#								library_attrs[subsubattr.tag] = subsubattr.text.strip()
 				expt_attribute_counter.update( library_attrs.keys() )
 			# library source
 			# GENOMIC TRANSCRIPTOMIC METAGENOMIC METATRANSCRIPTOMIC SYNTHETIC VIRAL RNA OTHER
@@ -175,33 +179,34 @@ else:
 				continue
 			#sys.stderr.write("# reading sample info from {}\n".format(samplename))
 			sam_xmltree = ET.fromstring(sam_fex.read())
-			samxl = sam_xmltree.getchildren() # should be SAMPLE_SET of 1 or more SAMPLE
+			#samxl = sam_xmltree.getchildren() # should be SAMPLE_SET of 1 or more SAMPLE
 			#sys.stderr.write("{}\n".format(samplename))
-			for sample in samxl:
+			for sample in list(sam_xmltree):
 				samplecounter += 1
-				sl = sample.getchildren()
+				#sl = sample.getchildren()
 				# should be [<Element 'IDENTIFIERS' at 0x7fe2b5879dd0>, <Element 'TITLE' at 0x7fe2b5879e90>, <Element 'SAMPLE_NAME' at 0x7fe2b5879ed0>, <Element 'DESCRIPTION' at 0x7fe2b5879fd0>, <Element 'SAMPLE_LINKS' at 0x7fe2b5885050>, <Element 'SAMPLE_ATTRIBUTES' at 0x7fe2b58851d0>]
 				# >>> sample.attrib
 				# {'alias': 'SAMD00028700', 'accession': 'DRS023861'}
 				namedict = {}
 				sampleattrs = {}
-				for sinfo in sl:
+				for sinfo in list(sample):
 					if sinfo.tag=="SAMPLE_ATTRIBUTES":
-						for subattr in sinfo.getchildren():
-							subsubattr = subattr.getchildren() # should be list
+						for subattr in list(sinfo):
+							subsubattr = list(subattr) # should be list
 							if len(subsubattr) > 1:
 								sampleattrs[subsubattr[0].text] = subsubattr[1].text
 							else: # this may become a warning later
 								sampleattrs[subsubattr[0].text] = "NO_VALUE"
 					if sinfo.tag=="SAMPLE_NAME":
-						for subinfo in sinfo.getchildren():
+						for subinfo in list(sinfo):
 							namedict[subinfo.tag] = subinfo.text
 						try:
 							rawsamplealias = sample.attrib.get("alias",None)
 							if rawsamplealias is not None:
-								samplealias = unicodedata.normalize('NFKD', unicode(rawsamplealias)).encode("ascii",errors="replace")
+								#samplealias = unicodedata.normalize('NFKD', unicode(rawsamplealias)).encode("ascii",errors="replace")
+								#samplealias = rawsamplealias.encode("ascii",errors="replace")
 								# remove any tabs within aliases, for appx 100 samples, but still screws up counts
-								samplealias = samplealias.replace("\t"," ")
+								samplealias = str(rawsamplealias).replace("\t"," ")
 						# ERROR WITH ERA542436/ERA542436.sample.xml, {'center_name': 'ANIMAL HEALTH TRUST', 'alias': u'\xd3sk E', 'accession': 'ERS1013701'}
 						except UnicodeEncodeError:
 						# caused UnicodeEncodeError due to '\xa0' in some strings
@@ -219,11 +224,11 @@ else:
 					continue
 				# print line
 				try:
-					sample_columns = u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format( membername, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
-					expt_columns = u"{}\t{}\t{}".format( library_attrs.get("LIBRARY_STRATEGY","NA"), library_attrs.get("LIBRARY_SOURCE","NA"), library_attrs.get("LIBRARY_SELECTION","NA") )
-					outline = u"{}\t{}\n".format(sample_columns, expt_columns)
-					norm_outline = unicodedata.normalize('NFKD', outline).encode("ascii",errors="replace")
-					sys.stdout.write( norm_outline )
+					sample_columns = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format( membername, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
+					expt_columns = "{}\t{}\t{}".format( library_attrs.get("LIBRARY_STRATEGY","NA"), library_attrs.get("LIBRARY_SOURCE","NA"), library_attrs.get("LIBRARY_SELECTION","NA") )
+					outline = "{}\t{}\n".format(sample_columns, expt_columns)
+					norm_outline = str(outline).encode("ascii",errors="replace").decode()
+					sys.stdout.write( outline )
 				except UnicodeEncodeError:
 					sys.stderr.write("WARNING: COULD NOT PROCESS UNICODE FOR {} ENTRY {}\n".format(accession, foldercounter) )
 		else: # meaning isdir() is false, so may be a file

@@ -15,11 +15,11 @@ library(DT)
 inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes.loc_test.tab"
 
 # v1 headers          1              2               3             4                 5              6           7
-mgd_colunm_headers = c("sra_sample", "sample_alias", "accession", "ncbi_id", "ncbi_category","latitude","longitude",
+mgd_colunm_headers = c("sra_study_id", "sample_alias", "sra_sample_acc", "ncbi_id", "ncbi_category","latitude","longitude",
                    "year","month","day", "isolation_source", "location", "category")
 #                   8       9       10         11              12           13
 # v2 headers
-mgd_colunm_headers = c("sra_sample", "sample_alias", "accession", "ncbi_id", "ncbi_category","latitude","longitude",
+mgd_colunm_headers = c("sra_study_id", "sample_alias", "sra_sample_acc", "ncbi_id", "ncbi_category","latitude","longitude",
                        "year","month","day", "isolation_source", "location", 
                        "seq_type", "seq_source", "seq_selection", "category")
 
@@ -95,8 +95,8 @@ print( "# Building point popup labels" ) # unsure why this takes so long
 # should end up looking like
 # "<b><a href='https://www.ncbi.nlm.nih.gov/sra/SRS5092595'>SRS5092595</a></b>"
 sra_expt_address_string = paste0("<b><a href='https://www.ncbi.nlm.nih.gov/sra/", 
-                                 metagenomedata[["accession"]] ,"'>", 
-                                 metagenomedata[["accession"]] , "</a></b>")
+                                 metagenomedata[["sra_sample_acc"]] ,"'>", 
+                                 metagenomedata[["sra_sample_acc"]] , "</a></b>")
 # should look like "2017-3-0"
 sample_date_string = paste(metagenomedata[["year"]], metagenomedata[["month"]], 
                            metagenomedata[["day"]], sep="-")
@@ -156,34 +156,36 @@ ui <- fluidPage(
                                 choices = list("Human" = 1, "Guts" = 2, "Other body" = 3,
                                                "Aquatic animals" = 4, "Terrestrial animals" = 5, 
                                                "Plants" = 6,
-                                               "Algae" = 7),
+                                               "Algae" = 7,
+                                               "Ocean waters" = 8, "Fresh waters or ice" = 9, 
+                                               "Earth (any)" = 10 ),
                                 selected = 7
-                                ),
-             selectInput("libtype", "Library Type (Amplicon, WGS, etc.)", 
-                         choices = seq_lib_types_choices
-                        )
+                                )
+             
              ),
       column(2, 
              checkboxGroupInput("cats2", "",
-                                choices = list("Ocean waters" = 8, "Fresh waters or ice" = 9, 
-                                               "Earth (any)" = 10, "Industrial process" = 11, 
+                                choices = list("Industrial process" = 11, 
                                                "Oil and gas" = 12,
-                                               "Electrical process" = 13)
-                               ),
-             selectInput("libsource", "Library Source (Metagenome, Metatxome, etc.)", 
-                         choices = seq_lib_sources_choices
-                        )
-             ),
-      column(2, 
-             checkboxGroupInput("cats3", "",
-                                choices = list("City environment" = 14, "Air" = 15,
+                                               "Electrical process" = 13,
+                                               "City environment" = 14, "Air" = 15,
                                                "Microbial process" = 16, "Food" = 17, 
                                                "Plastic" = 18, "Synthetic" = 19, 
                                                "Unclassified" = 20)
                                ),
+             selectInput("subMetaCatSelect", "Select subcategories:",
+                         c("All"), selected=1)
+             ),
+      column(2, 
+             selectInput("libtype", "Library Type (Amplicon, WGS, etc.)", 
+                         choices = seq_lib_types_choices
+                        ),
+             selectInput("libsource", "Library Source (Metagenome, Metatxome, etc.)", 
+                         choices = seq_lib_sources_choices
+                        ),
              selectInput("libselection", "Library Selection (PCR, ChIP, RANDOM, etc.)", 
                          choices = seq_sel_methods_choices
-             )   
+                        )
              )
     ),
 
@@ -221,9 +223,13 @@ server <- function(input, output) {
   
   # reactive function to get category choices and filter dataset
   get_selected_samples = reactive({
-    user_selected_values = c( input$cats1, input$cats2, input$cats3 )
+    user_selected_values = c( input$cats1, input$cats2 )
     cat_is_selected = !is.na(match(all_cat_numerical_values,user_selected_values))
-    selected_cats = all_categories[cat_is_selected]
+
+    if (input$subMetaCatSelect == "All") {
+      selected_cats = all_categories[cat_is_selected]
+    } else {selected_cats = input$subMetaCatSelect}
+    
     year_range = input$year[1]:input$year[2]
     if (input$libtype == "All types") {
       lib_type_selected = seq_lib_types
@@ -254,6 +260,20 @@ server <- function(input, output) {
       addProviderTiles( get_tileset_choice() ) %>%
       addScaleBar("bottomright")
   })
+  
+  # observer for updated subselection of individual categories
+  observe({
+    user_selected_values = c( input$cats1, input$cats2 )
+    cat_is_selected = !is.na(match(all_cat_numerical_values,user_selected_values))
+    cat_options = c("All", all_categories[cat_is_selected] )
+    # reset sub category options based on major checkbox groups
+    updateSelectInput(session = getDefaultReactiveDomain(), 
+                      "subMetaCatSelect",
+                      label = "Select subcategories:",
+                      choices = cat_options,
+                      selected = 1
+                     )
+  }) # end observe
   
   # observer for categories of points
   observe({
@@ -299,7 +319,7 @@ server <- function(input, output) {
                        latitude >= input$worldMap_bounds$south &
                        input$worldMap_bounds$east >= longitude &
                        longitude >= input$worldMap_bounds$west ) %>%
-      dplyr::select( sra_sample:accession,ncbi_category:seq_source )
+      dplyr::select( sra_study_id:sra_sample_acc,ncbi_category:seq_source )
 
     DT::datatable(selected_samples, options = list(lengthMenu = c(50,100,500), pageLength = 50))
   })

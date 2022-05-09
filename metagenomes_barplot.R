@@ -14,10 +14,11 @@ print(paste("Reading",inputfile,Sys.time()))
 taxondata_raw = read.table(inputfile, header=FALSE, sep="\t")
 print(paste("Done reading from file",Sys.time()))
 
-if ( dim(taxondata_raw)[2] > 1 ) {
-	print(paste("Detected extended format, using column",dim(taxondata_raw)[2],Sys.time()))
+# check for full table instead of just one column containing the metagenome categories
+if ( ncol(taxondata_raw) > 1 ) {
+	print(paste("Detected extended format, using column",ncol(taxondata_raw),Sys.time()))
 }
-taxondata = taxondata_raw[,dim(taxondata_raw)[2]]
+taxondata = taxondata_raw[,ncol(taxondata_raw)]
 
 # remove items that are None, as those have actual species
 taxondata_filt = taxondata[taxondata!="None"]

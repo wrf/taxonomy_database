@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 #
 # parse_sra_metadata.py v1 created by WRF 2018-04-24
+# v1.3 2022-04-27  more verbose, some bug fixes
+#
 
-'''parse_long_sra_metadata.py v1.2 last modified 2021-01-10
+'''parse_long_sra_metadata.py v1.3 last modified 2022-05-09
     parses the SRA metadata tar.gz file, makes a 12-column text table
 
     you must unzip the .tar.gz file
     NOTE: the compression is probably about 97%, so a 4Gb .tar.gz will expand to 130Gb
 
 mkdir 20210404_samples
-mv NCBI_SRA_Metadata_Full_20210404.tar.gz 20210404_samples/
-tar -zxpf 20210404_samples/NCBI_SRA_Metadata_Full_20210404.tar.gz
+tar -zxpf 20210404_samples/NCBI_SRA_Metadata_Full_20210404.tar.gz -C 20210404_samples/
 parse_long_sra_metadata.py 20210404_samples/ > NCBI_SRA_Metadata_Full_20210404.sample_w_exp.tab 2> NCBI_SRA_Metadata_Full_20210404.sample_w_exp.log
 
     original mode would directly parse the .tar.gz, this is still allowed
@@ -80,13 +81,19 @@ else:
 
 	samplecounter = 0
 	exptcounter = 0
-	noexptcounter = 0
-	nosamplecounter = 0
+	noexptcounter = 0 # no expt info file
+	nosamplecounter = 0 # no sample info file
+	broken_xml_counter = 0 #
+	empty_sample_counter = 0 # file exists, but contains no attributes, so make TypeError
+	unicode_error_counter = 0 # track weird unicode problems, usually either location name or latlon
+
 
 	WARNMAX = 100
 
 	sra_is_glob = False
 	sra_is_tar = False
+
+	verbose = False
 
 	expt_attribute_counter = Counter()
 	sample_attribute_counter = Counter()
@@ -98,6 +105,8 @@ else:
 	# after the XML parsing step, everything is the same
 	if os.path.isdir(sra_metadata_source): # is unzipped dir, so must glob
 		metadata = os.path.join(sra_metadata_source, "*")
+		if verbose:
+			sys.stderr.write("### glob {}\n".format(metadata) )
 		sra_iter_obj = iglob(metadata)
 		sra_is_glob = True
 		member_dir_check = lambda x: os.path.isdir(x)
@@ -178,7 +187,13 @@ else:
 					sys.stderr.write("# {} WARNINGS, WILL NOT DISPLAY MORE  {}\n".format(WARNMAX, time.asctime() ) )
 				continue
 			#sys.stderr.write("# reading sample info from {}\n".format(samplename))
-			sam_xmltree = ET.fromstring(sam_fex.read())
+			try:
+				sam_xmltree = ET.fromstring( sam_fex.read() )
+			except ET.ParseError: # xml.etree.ElementTree.ParseError: unclosed token: line 12232, column 4
+				broken_xml_counter += 1
+				sys.stderr.write("WARNING: BROKEN XML {} FOLDER {}\n".format(accession, foldercounter) )
+				continue
+
 			#samxl = sam_xmltree.getchildren() # should be SAMPLE_SET of 1 or more SAMPLE
 			#sys.stderr.write("{}\n".format(samplename))
 			for sample in list(sam_xmltree):
@@ -222,15 +237,25 @@ else:
 				# if somehow neither exists, skip
 				if accession is None and samplealias is None:
 					continue
+
+				# combine all columns
+				# namedict should have attributes, even if sample is a metagenome
+				sample_columns = [ membername, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") ]
+				expt_columns = [ library_attrs.get("LIBRARY_STRATEGY","NA"), library_attrs.get("LIBRARY_SOURCE","NA"), library_attrs.get("LIBRARY_SELECTION","NA") ]
+				out_columns = sample_columns + expt_columns
 				# print line
 				try:
-					sample_columns = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format( membername, samplealias, accession, namedict.get('TAXON_ID',None), namedict.get('SCIENTIFIC_NAME',None), sampleattrs.get("lat_lon","VOID"), sampleattrs.get("collection_date","NA"), sampleattrs.get("isolation_source","NA"), sampleattrs.get("geo_loc_name","NA") )
-					expt_columns = "{}\t{}\t{}".format( library_attrs.get("LIBRARY_STRATEGY","NA"), library_attrs.get("LIBRARY_SOURCE","NA"), library_attrs.get("LIBRARY_SELECTION","NA") )
-					outline = "{}\t{}\n".format(sample_columns, expt_columns)
+					outline = "{}\n".format( "\t".join(out_columns) )
 					norm_outline = str(outline).encode("ascii",errors="replace").decode()
 					sys.stdout.write( outline )
-				except UnicodeEncodeError:
-					sys.stderr.write("WARNING: COULD NOT PROCESS UNICODE FOR {} ENTRY {}\n".format(accession, foldercounter) )
+				except TypeError: # sequence item 4: expected str instance, NoneType found
+					# occurs when sample XML file exists, but has no attributes
+					empty_sample_counter += 1
+					sys.stderr.write("WARNING: NO SAMPLE OR EXPT DATA {} FOLDER {}\n".format(accession, foldercounter) )
+				except UnicodeEncodeError: # probably mojibake from bad encoding on old sample attributes
+					unicode_error_counter += 1
+					#norm_outline = str(outline).decode("utf-8").encode("ascii",errors="replace")
+					sys.stderr.write("WARNING: UNICODE ISSUE {} FOLDER {}\n".format(accession, foldercounter) )
 		else: # meaning isdir() is false, so may be a file
 			lastnonfolder = membername
 			nonfolders += 1
@@ -247,16 +272,27 @@ else:
 		sys.stderr.write("# Could not experimental details for {} folders\n".format( noexptcounter ) )
 	if nosamplecounter:
 		sys.stderr.write("# Could not find samples for {} folders\n".format( nosamplecounter ) )
+	if broken_xml_counter:
+		sys.stderr.write("# Samples with corrupted XML {}\n".format( broken_xml_counter ) )
+	if empty_sample_counter:
+		sys.stderr.write("# No attributes for {} samples\n".format( empty_sample_counter ) )
+	if unicode_error_counter:
+		sys.stderr.write("# Unicode encoding problems for {} samples\n".format( unicode_error_counter ) )
 	# report table of attributes
 	sys.stderr.write("### Common sample attributes included:\n")
 	for k,v in sample_attribute_counter.items():
 		try:
-			sys.stderr.write("{}\t{}\n".format( k,v ) )
+			sys.stderr.write("_SAMPLE_ATTR\t{}\t{}\n".format( str(k).decode("utf-8"), v ) )
 		except UnicodeEncodeError: # skip entry, including at least u'\xb0' (degree)
 			pass
 	sys.stderr.write("### Common expt design attributes included:\n")
 	for k,v in expt_attribute_counter.items():
 		try:
-			sys.stderr.write("{}\t{}\n".format( k,v ) )
+			sys.stderr.write("_EXPT_ATTR\t{}\t{}\n".format( str(k).decode("utf-8"), v ) )
 		except UnicodeEncodeError:
 			pass
+
+
+
+
+

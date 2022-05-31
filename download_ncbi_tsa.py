@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 #
 # download_ncbi_tsa.py  created 2018-05-04
+# 2022-05-31 python3 update
 
-'''download_ncbi_tsa.py  last modified 2020-04-07
+'''download_ncbi_tsa.py  last modified 2022-05-31
   download NCBI transcriptome assemblies and rename fasta sequences
 
 download_ncbi_tsa.py -i arachnida_codes
@@ -12,7 +13,7 @@ GANL.gz
 GANP
 GFVZ.gz
 # comments are allowed
-...
+...etc
 
     check that all automatically assigned names are correct:
 head -n 1 *renamed.fasta
@@ -29,28 +30,31 @@ import argparse
 import gzip
 
 def make_wget_command(ncbicode, ncbiversion):
-	'''make command for wget'''
+	'''make link for wget'''
 	# ftp://ftp.ncbi.nlm.nih.gov/sra/wgs_aux/GF/GY/GFGY01/GFGY01.1.fsa_nt.gz
-	# https://sra-download.ncbi.nlm.nih.gov/traces/wgs01/wgs_aux/GH/BD/GHBD02/GHBD02.1.fsa_nt.gz
 	codesplits = [ncbicode[0:2], ncbicode[2:4], ncbicode[0:4], ncbicode[0:4]]
 	wgetstring = "ftp://ftp.ncbi.nlm.nih.gov/sra/wgs_aux/{1}/{2}/{3}{0}/{4}{0}.1.fsa_nt.gz".format(ncbiversion, *codesplits)
+	# TODO make alternate link for newer format
+	# https://sra-download.ncbi.nlm.nih.gov/traces/wgs01/wgs_aux/GH/BD/GHBD02/GHBD02.1.fsa_nt.gz
+	# https://sra-download.ncbi.nlm.nih.gov/traces/wgs04/wgs_aux/GJ/HC/GJHC01/GJHC01.1.fsa_nt.gz
 	return wgetstring
 
 def run_wget(wgetstring):
 	'''run wget as subprocess'''
 	wget_args = ["wget", wgetstring]
-	print >> sys.stderr, "Making system call:\n{}".format( " ".join(wget_args) )
+	sys.stderr.write("Making system call:\n{}\n".format( " ".join(wget_args) ) )
 	subprocess.call(wget_args)
 	# no return
 
 def rename_sequences(downloadfile, renamedfile):
+	"""read gzipped fasta file, and rename the fasta headers"""
 	seqcounter = 0
 	with open(renamedfile,'w') as rf:
-		for gfline in gzip.open(downloadfile,'r'):
+		for gfline in gzip.open(downloadfile,'rt'):
 			if gfline[0]==">":
-				headersplits = gfline.split()
+				headersplits = gfline.split(",",1)[0].split() # split at comma
 			#	genus, species, comp = headersplits[2:5]
-				newheader = ">{}_{}_{}\n".format( *headersplits[2:5] )
+				newheader = ">{}_{}|{}\n".format( headersplits[2], headersplits[3], headersplits[-1] )
 				newheader = newheader.replace("TRINITY_","")
 				newheader = newheader.replace("Locus_","l")
 				newheader = newheader.replace("Transcript_","t")
@@ -74,13 +78,13 @@ def main(argv, wayout):
 	species_collected = {}
 	errorcount = 0
 	filecollector = []
-	print >> sys.stderr, "# reading species IDs from {}".format(args.input), time.asctime()
+	sys.stderr.write( "# reading species IDs from {}  {}\n".format(args.input, time.asctime() ) )
 	for line in open(args.input,'r'): # each line should be a 4-letter code
 		line = line.strip()
 		if line and line[0]!="#": # ignore empty and comment lines
 			speciescode = line[0:4] # chop any endings like .gz or 01
 			if speciescode in species_collected:
-				print >> sys.stderr, "# SKIPPING CODE {}, ALREADY IN LIST".format(speciescode)
+				sys.stderr.write( "# SKIPPING CODE {}, ALREADY IN LIST\n".format(speciescode) )
 				continue
 
 			# download file with wget
@@ -89,14 +93,14 @@ def main(argv, wayout):
 			if not os.path.exists(dlfile):
 				run_wget(wgetstring)
 			else:
-				print >> sys.stderr, "# SKIPPING CODE {}, ALREADY DOWNLOADED".format(speciescode)
+				sys.stderr.write( "# SKIPPING CODE {}, ALREADY DOWNLOADED\n".format(speciescode) )
 
 			# once downloaded, rename
 			if os.path.exists(dlfile) and os.path.isfile(dlfile):
 				species_collected[speciescode] = True
-				print >> sys.stderr, "# downloaded {}, renaming sequences".format(dlfile), time.asctime()
-				with gzip.open(dlfile,'r') as gf:
-					firstline = gf.next()
+				sys.stderr.write( "# downloaded {} , renaming sequences  {}\n".format(dlfile, time.asctime() ) )
+				with gzip.open(dlfile,'rt') as gf:
+					firstline = gf.readline()
 				firstheader = firstline.split()
 				speciesname = "{}_{}".format(*firstheader[2:4]).replace(".","") # replace . for cases of sp.
 				renamedfile = "{}_{}{}.renamed.fasta".format(speciesname, speciescode, args.version)
@@ -105,8 +109,8 @@ def main(argv, wayout):
 				sys.stderr.write( "# file {} had {} seqs\n".format(renamedfile, seqcounter) )
 			else:
 				errorcount += 1
-	print >> sys.stderr, "# found data for {} codes, could not find for {}".format( len(species_collected), errorcount), time.asctime()
-	print >> sys.stderr, "# renamed sequences for:\n{}".format( "\n".join(filecollector) )
+	sys.stderr.write( "# found data for {} codes, could not find for {}  {}\n".format( len(species_collected), errorcount, time.asctime() ) )
+	sys.stderr.write( "# renamed sequences for:\n{}\n".format( "\n".join(filecollector) ) )
 
 if __name__ == "__main__":
 	main(sys.argv[1:], sys.stdout)

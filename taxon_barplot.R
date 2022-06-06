@@ -72,7 +72,7 @@ thirdgraph = classes[numclasses:1]
 
 ### generate PDF
 print(paste("Generating .pdf",outputfile))
-pdf(file=outputfile, width=8, height=11)
+pdf(file=outputfile, width=8, height=11, paper="a4")
 
 par(mar=c(1,10,3,1.6))
 layout(matrix(c(1,2),nrow=2),heights=c(1.2,4))
@@ -83,12 +83,15 @@ text(kt_positions, bp1[,1], kingdoms)
 text(xmax,bp1[1,1], paste("Total:",totalspecies), cex=1.3, pos=2)
 
 par(mar=c(4,10,1,1.6))
-bp2 = barplot(phyla, horiz=TRUE, xlim=c(0,xmax), las=1, cex.axis=1.3, col=phylacols[phylaorder])
+bp2 = barplot(phyla, horiz=TRUE, xlim=c(0,xmax), las=1, 
+              cex.axis=1.2, cex=0.8, col=phylacols[phylaorder])
 text(phyla+xmax*0.01, bp2[,1], phyla, pos=4)
 #text(xmax*0.6,max(bp2)*0.8,"Note: 'None' may include many bacterial\nor single-celled eukaryotic groups\nthat lack higher-level rankings\nin the NCBI Taxonomy database.", cex=1.5)
 
-par(fig = c(grconvertX(c(xmax*0.5,xmax), from="user", to="ndc"), grconvertY(c(-0.02,0.85)*max(bp2), from="user", to="ndc")), mar = c(0,0,0,0), new = TRUE)
-bp3 = barplot(thirdgraph[thirdgraph>0], horiz=TRUE, las=1, xlim=c(0,xmax/2), col=classcols[numclasses:1], cex.lab=1.1, axes=FALSE)
+par(fig = c(grconvertX(c(xmax*0.5,xmax), from="user", to="ndc"), grconvertY(c(-0.02,0.88)*max(bp2), from="user", to="ndc")), mar = c(0,0,0,0), new = TRUE)
+bp3 = barplot(thirdgraph[thirdgraph>0], horiz=TRUE, las=1, xlim=c(0,xmax/2), 
+              col=classcols[numclasses:1], 
+              cex.axis=1.1, cex=0.8, axes=FALSE)
 classpos = thirdgraph[thirdgraph>0]
 classpos[classpos>xmax/2] = classpos[classpos>xmax/2]/3
 text(classpos, bp3, thirdgraph[thirdgraph>0], pos=4, cex=0.9)

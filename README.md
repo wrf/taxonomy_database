@@ -19,7 +19,7 @@ Gzipped FASTA-format files can also be downloaded at the [NCBI Trace archive](ht
 
 This currently contains transcriptomes of:
 
-![wgs_selector_tsa_only_2019-01-11.w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/wgs_selector_tsa_only_2019-01-11.w_kingdom.png)
+![wgs_selector_tsa_only_20220606.w_king.png](https://github.com/wrf/taxonomy_database/blob/master/images/wgs_selector_tsa_only_20220606.w_king.png)
 
 ## adding kingdom etc ##
 To add kingdom, phylum and class ranks to this table, so it can be more easily searched. Copy the `organism` column to a text file (here this is named as `sra_trace_species_list_2018-04-05.txt`). Then run:
@@ -34,20 +34,24 @@ The current, full link can be captured with:
 
 `wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz`
 
+In the older method, the names had to be extracted with `cut`, using `grep` to remove the header line `organism_an`. Then use the names and the taxonomy files to regenerate the table including kingdom. 
+
+```
+cut -f 5 -d , wgs_selector_tsa_only_2018-08-23.csv | grep -v organism_an > wgs_selector_tsa_only_2018-08-23.names_only`
+parse_ncbi_taxonomy.py -i wgs_selector_tsa_only_2018-08-23.names_only -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --header > wgs_selector_tsa_only_2018-08-23.w_kingdom.tab
+Rscript taxon_barplot.R wgs_selector_tsa_only_2018-08-23.w_kingdom.tab
+```
+
+Thus, it is better to use the method below, which can read directly from the NCBI TSA csv file.
+
 ## using CSV from NCBI WGS ##
 On the [trace archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa), select only the `TSA` projects, and download the file `wgs_selector.csv` (renaming as desired).
 
-Extract the names with `cut`, using `grep` to remove the header line `organism_an`:
-
-`cut -f 5 -d , wgs_selector_tsa_only_2018-08-23.csv | grep -v organism_an > wgs_selector_tsa_only_2018-08-23.names_only`
-
-Then use the names and the taxonomy files to regenerate the table including kingdom:
-
-`parse_ncbi_taxonomy.py -i wgs_selector_tsa_only_2018-08-23.names_only -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --header > wgs_selector_tsa_only_2018-08-23.w_kingdom.tab`
+`parse_ncbi_taxonomy.py -n ~/db/taxonomy_20210518/names.dmp -o ~/db/taxonomy_20210518/nodes.dmp --csv -i wgs_selector_tsa_only_20220606.csv --numbers > wgs_selector_tsa_only_20220606.w_king.tsv`
 
 Then generate the summary barplot:
 
-`Rscript taxon_barplot.R wgs_selector_tsa_only_2018-08-23.w_kingdom.tab`
+`Rscript taxon_barplot.R wgs_selector_tsa_only_20220606.w_king.tsv`
 
 ## rapid downloading and renaming ##
 Assemblies can be downloaded directly from the NCBI FTP using `wget`, which can be called through the script `download_ncbi_tsa.py`. The only input requirement (`-i`) is a file of the accession numbers.

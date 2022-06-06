@@ -2,7 +2,7 @@
 #
 # parse_ncbi_taxonomy.py  created by WRF 2018-04-05
 
-'''parse_ncbi_taxonomy.py  last modified 2021-05-18
+'''parse_ncbi_taxonomy.py  last modified 2022-06-06
 
 parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i species_list.txt
 
@@ -144,7 +144,7 @@ def main(argv, wayout):
 
 	# metagenome mode overrides making a header
 	if args.header and not args.metagenomes_only:
-		print >> sys.stdout, "species\tkingdom\tphylum\tclass"
+		sys.stdout.write("species\tkingdom\tphylum\tclass\n")
 
 	node_tracker = {} # keys are node IDs, values are counts
 

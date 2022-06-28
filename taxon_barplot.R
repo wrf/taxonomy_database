@@ -8,6 +8,7 @@ inputfile = args[1]
 #inputfile = "~/git/misc-analyses/taxonomy_database/sra_trace_species_list_2018-04-05.tab"
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20180402.unique_ncbi_ids_w_king.tab"
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20180402.ncbi_ids_w_kingdom.tab"
+#inputfile = "~/project/taxonomy_database/NCBI_SRA_Metadata_Full_20220117.sample_kingdom.tab"
 outputfile = gsub("([\\w/]+)\\....$","\\1.pdf",inputfile,perl=TRUE)
 
 print(paste("Reading",inputfile,Sys.time()))
@@ -18,8 +19,10 @@ print(paste("Done",Sys.time()))
 
 kingdoms = sort(table(taxondata[["kingdom"]]),decreasing=FALSE)
 
-kingrefs = c( "None",   "Fungi",   "Metazoa", "Viridiplantae", "Bacteria", "Archaea", "Orthornavirae", "Pararnavirae", "Shotokuvirae", "Bamfordvirae", "Loebvirae", "Sangervirae" )
-kingcols = c("#888888", "#4075b2", "#9354cf",  "#18d025",      "#c34741" , "#de851b", "#aaaaaa",       "#aaaaaa",      "#aaaaaa",      "#aaaaaa",      "#aaaaaa",   "#aaaaaa")
+kingrefs = c( "None",   "Fungi",   "Metazoa", "Viridiplantae", "Bacteria", "Archaea", 
+              "Orthornavirae", "Pararnavirae", "Shotokuvirae", "Bamfordvirae", "Loebvirae", "Sangervirae", "Heunggongvirae" )
+kingcols = c("#888888", "#4075b2", "#9354cf",  "#18d025",      "#c34741" , "#de851b", 
+             "#aaaaaa",       "#aaaaaa",      "#aaaaaa",      "#aaaaaa",      "#aaaaaa",   "#aaaaaa",    "#aaaaaa")
 kingdomorder = match(names(kingdoms),kingrefs)
 
 totalspecies = sum(kingdoms)
@@ -38,17 +41,23 @@ phyla = phyla[phylamax:1]
 # echinodermata was "#800968"
 # ascomycota was "#389192"
 
-metaphyla = c("Arthropoda","Chordata","Mollusca", "Cnidaria", "Echinodermata","Platyhelminthes","Nematoda","Annelida", "Porifera", "Rotifera", "Ctenophora", "Tardigrada")
+metaphyla = c("Arthropoda","Chordata","Mollusca", "Cnidaria", "Echinodermata","Platyhelminthes","Nematoda",
+              "Annelida", "Porifera", "Rotifera", "Ctenophora", "Tardigrada")
 plantaphyla = c("Streptophyta", "Chlorophyta", "Bacillariophyta")
 fungiphyla = c("Ascomycota","Basidiomycota","Mucoromycota","Chytridiomycota")
 phaeophyla = c("Phaeophyceae","Apicomplexa")
-bactphyla = c("Proteobacteria", "Firmicutes", "Actinobacteria", "Bacteroidetes", "Spirochaetes", "Cyanobacteria", "Tenericutes", "Chloroflexi", "Chlamydiae", "Verrucomicrobia")
+bactphyla = c("Proteobacteria", "Firmicutes", "Actinobacteria", "Bacteroidetes", "Spirochaetes", 
+              "Cyanobacteria", "Tenericutes", "Chloroflexi", "Chlamydiae", "Verrucomicrobia")
 archaphyla = c("Euryarchaeota", "Thaumarchaeota", "Crenarchaeota", "Parvarchaeota")
-virophyla = c("Pisuviricota", "Negarnaviricota", "Artverviricota", "Kitrinoviricota", "Uroviricota", "Peploviricota", "Cossaviricota", "Duplornaviricota", "Nucleocytoviricota")
+virophyla = c("Pisuviricota", "Negarnaviricota", "Artverviricota", "Kitrinoviricota", "Uroviricota", 
+              "Peploviricota", "Cossaviricota", "Duplornaviricota", "Nucleocytoviricota")
 
-phylarefs = c(bactphyla,archaphyla,phaeophyla,fungiphyla,plantaphyla,metaphyla)
+phylarefs = c(bactphyla,archaphyla,phaeophyla,fungiphyla,plantaphyla,metaphyla,virophyla)
 # assumes "None" is first entry, so #888888
-phylacols = c("#888888",  rep(c("#c34741"),length(bactphyla)),  rep(c("#de851b"),length(archaphyla)),  rep(c("#8d8f0d"),length(phaeophyla)),  rep(c("#4075b2"),length(fungiphyla)),  rep(c("#18d025"),length(plantaphyla)),  rep(c("#9354cf"),length(metaphyla)), rep(c("#aaaaaa"),length(virophyla)) )
+phylacols = c("#888888",  rep(c("#c34741"),length(bactphyla)),  rep(c("#de851b"),length(archaphyla)),  
+              rep(c("#8d8f0d"),length(phaeophyla)),  rep(c("#4075b2"),length(fungiphyla)),  
+              rep(c("#18d025"),length(plantaphyla)),  rep(c("#9354cf"),length(metaphyla)), 
+              rep(c("#aaaaaa"),length(virophyla)) )
 phylaorder = match(names(phyla),phylarefs,nomatch=0)+1
 
 
@@ -76,9 +85,12 @@ pdf(file=outputfile, width=8, height=11, paper="a4")
 
 par(mar=c(1,10,3,1.6))
 layout(matrix(c(1,2),nrow=2),heights=c(1.2,4))
-bp1 = barplot(kingdoms, horiz=TRUE, las=1, xlim=c(0,xmax), col=kingcols[kingdomorder], main=inputfile, cex.lab=1.4, cex.axis=1.3)
+bp1 = barplot(kingdoms, horiz=TRUE, las=1, xlim=c(0,xmax), col=kingcols[kingdomorder], 
+              main=inputfile, cex.lab=1.1, cex.axis=1.1, names.arg=rep("",length(kingdoms)))
+
 kt_positions = kingdoms/2
 kt_positions[kingdoms<xmax*0.06] = kingdoms[kingdoms<xmax*0.06]+xmax*0.05
+mtext(names(kingdoms), side=2, at=bp1[,1], las=1, adj=1, line=1  )
 text(kt_positions, bp1[,1], kingdoms)
 text(xmax,bp1[1,1], paste("Total:",totalspecies), cex=1.3, pos=2)
 
@@ -100,3 +112,4 @@ dev.off()
 
 
 #
+

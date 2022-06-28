@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 # polish_metagenome_table.py
+# v2022-01-07
+# v2022-06-28 catch for double-decimal deg-min-sec format
 
 '''polish_metagenome_table.py  last modified 2022-01-07
     tidy up formats, fix lat-long info
@@ -445,6 +447,22 @@ def four_part_latlon(latlon, debug=False):
 		longitude = "{}.{}".format(rematch.group(4), str(latmin)[2:8] )
 		lat_hemi = rematch.group(3)
 		long_hemi = rematch.group(6)
+		if lat_hemi=="S":
+			latitude = "-"+latitude
+		if long_hemi=="W":
+			longitude = "-"+longitude
+		return latitude, longitude
+
+	# degree minute with . as separator
+	#DRA011885	SAMD00291244	DRS180442	412755	marine sediment metagenome	41.10.5983 N 142.12.0328 E	2011-11-14	NA	Japan:off Shimokita Peninsula	AMPLICON	METAGENOMIC	PCR
+	rematch = re.search("(\d+)\.(\d+)\.(\d+) ([NS]), (\d+)\.(\d+)\.(\d+) ([EW])", latlon)
+	if rematch:
+		latmin = float(rematch.group(2))/60 + float(rematch.group(3))/3600
+		lonmin = float(rematch.group(6))/60 + float(rematch.group(7))/3600
+		latitude = "{}.{}".format(rematch.group(1), str(latmin)[2:8] )
+		lat_hemi = rematch.group(4)
+		longitude = "{}.{}".format(rematch.group(5), str(latmin)[2:8] )
+		long_hemi = rematch.group(8)
 		if lat_hemi=="S":
 			latitude = "-"+latitude
 		if long_hemi=="W":
@@ -1016,11 +1034,18 @@ def main(argv, wayout):
 				elif latitude.count("-")==1:
 					range_counter += 1
 					latitude = latitude.split("-")[0]
+				elif latitude.count(".")==2 and latitude.count("-")==0:
+					dms_counter += 1
+					degree, minutes, seconds = map(float,latitude.split("."))
+					latitude = str(degree + minutes/60 + seconds/3600)
 				if longitude.count("-")==2:
 					degree, minutes, seconds = map(float,longitude.split("-"))
 					longitude = str(degree + minutes/60 + seconds/3600)
 				elif longitude.count("-")==1:
 					longitude = longitude.split("-")[0]
+				elif longitude.count(".")==2 and longitude.count("-")==0:
+					degree, minutes, seconds = map(float,longitude.split("."))
+					longitude = str(degree + minutes/60 + seconds/3600)
 
 				# fix hemispheres to coordinates
 				lat_hemi = lat_hemi.replace(",","")

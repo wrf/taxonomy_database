@@ -4,7 +4,7 @@
 # v1.3 2022-04-27  more verbose, some bug fixes
 #
 
-'''parse_long_sra_metadata.py v1.3 last modified 2022-05-09
+'''parse_long_sra_metadata.py v1.3 last modified 2022-06-28
     parses the SRA metadata tar.gz file, makes a 12-column text table
 
     you must unzip the .tar.gz file
@@ -267,7 +267,7 @@ else:
 	sys.stderr.write("# Process completed in {:.1f} minutes\n".format( (time.time()-starttime)/60 ) )
 	sys.stderr.write("# Found {} members with {} folders, for {} samples and {} experiments\n".format( membercounter, foldercounter , samplecounter, exptcounter ) )
 	if nonfolders: # if any files were not in the normal SRA format folders
-		sys.stderr.write("# Found {} files, last one was {}\n".format( nonfolders, lastnonfolder) )
+		sys.stderr.write("# Found {} non-folder-files, last one was {}\n".format( nonfolders, lastnonfolder) )
 	if noexptcounter:
 		sys.stderr.write("# Could not experimental details for {} folders\n".format( noexptcounter ) )
 	if nosamplecounter:
@@ -282,17 +282,14 @@ else:
 	sys.stderr.write("### Common sample attributes included:\n")
 	for k,v in sample_attribute_counter.items():
 		try:
-			sys.stderr.write("_SAMPLE_ATTR\t{}\t{}\n".format( str(k).decode("utf-8"), v ) )
+			sys.stderr.write("_SAMPLE_ATTR\t{}\t{}\n".format( k, v ) )
 		except UnicodeEncodeError: # skip entry, including at least u'\xb0' (degree)
-			pass
+			sys.stderr.write("_SAMPLE_ATTR\t{}\t{}\n".format( str(k).encode("utf-8"), v ) )
 	sys.stderr.write("### Common expt design attributes included:\n")
 	for k,v in expt_attribute_counter.items():
 		try:
-			sys.stderr.write("_EXPT_ATTR\t{}\t{}\n".format( str(k).decode("utf-8"), v ) )
+			sys.stderr.write("_EXPT_ATTR\t{}\t{}\n".format( k, v ) )
 		except UnicodeEncodeError:
-			pass
+			sys.stderr.write("_EXPT_ATTR\t{}\t{}\n".format( str(k).encode("utf-8"), v ) )
 
-
-
-
-
+#

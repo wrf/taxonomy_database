@@ -2,7 +2,7 @@
 #
 # parse_ncbi_taxonomy.py  created by WRF 2018-04-05
 
-'''parse_ncbi_taxonomy.py  last modified 2022-06-06
+'''parse_ncbi_taxonomy.py  last modified 2022-06-28
 
 parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i species_list.txt
 
@@ -28,6 +28,7 @@ import os
 import time
 import gzip
 import argparse
+from collections import defaultdict
 
 #nodes.dmp
 #---------
@@ -137,6 +138,7 @@ def main(argv, wayout):
 	parser.add_argument('--numbers', action="store_true", help="input lines are NCBI ID numbers, not names")
 	parser.add_argument('--samples', action="store_true", help="read directly from parsed samples file")
 	parser.add_argument('--unique', action="store_true", help="only count first occurrence of a speices")
+	parser.add_argument('--missing-nodes', action="store_true", help="print frequency of missing nodes to stderr")
 	args = parser.parse_args(argv)
 
 	name_to_node, node_to_name = names_to_nodes(args.names, args.metagenomes_only)
@@ -148,7 +150,9 @@ def main(argv, wayout):
 
 	node_tracker = {} # keys are node IDs, values are counts
 
-	nullentries = 0 # information cannot be found
+	# if information cannot be found, possibly as the entry/species was deleted or merged
+	null_entry_counts = defaultdict(int) # key is number, value is int of count
+
 	skippedentries = 0 # skipped for --unique or --metagenomes-only
 	foundentries = 0
 	writecount = 0
@@ -177,11 +181,11 @@ def main(argv, wayout):
 					outputlist = lsplits[0:5] + finalnodes + lsplits[6:]
 					# check for deleted nodes, add to null entries
 					if finalnodes[0]=="Deleted":
-						nullentries += 1
+						null_entry_counts[node_id] += 1
 				elif speciesname == "organism_an":
 					outputlist = lsplits[0:5] + ["kingdom", "phylum", "class"] + lsplits[6:]
 				else:
-					nullentries += 1
+					null_entry_counts[node_id] += 1
 					outputlist = lsplits[0:5] + ["None", "None", "None"] + lsplits[6:]
 				outputstring = "{}\n".format( clean_name("\t".join(outputlist)) )
 				writecount += 1
@@ -195,7 +199,7 @@ def main(argv, wayout):
 				if args.samples:
 					lsplits = line.split("\t")
 					if len(lsplits) < 4: # columns missing somehow, skip
-						sys.stderr.write("# ERROR: MISSING COLUMNS IN:\n" + line + os.linesep)
+						sys.stderr.write("# ERROR: MISSING COLUMNS IN:\n{}\n".format(line) )
 						continue
 					if args.numbers:
 						taxid = lsplits[2]
@@ -238,15 +242,22 @@ def main(argv, wayout):
 
 						# check for deleted nodes, add to null entries
 						if finalnodes[0]=="Deleted":
-							nullentries += 1
+							null_entry_counts[node_id] += 1
 				else:
-					nullentries += 1
+					null_entry_counts[node_id] += 1
 					outputstring = "{}\tNone\tNone\tNone\n".format( speciesname )
 				writecount += 1
 				sys.stdout.write( outputstring )
+	nullentries = sum(null_entry_counts.values())
 	sys.stderr.write("# found tree for {} nodes, could not find for {}  {}\n".format( foundentries, nullentries, time.asctime() ) )
 	if skippedentries:
-		sys.stderr.write("# wrote {} entries, skipped {} entries\n".format( writecount, skippedentries ) )
+		if args.unique:
+			sys.stderr.write("# wrote {} entries, skipped {} non-unique entries\n".format( writecount, skippedentries ) )
+		else:
+			sys.stderr.write("# wrote {} entries, skipped {} entries\n".format( writecount, skippedentries ) )
+	if nullentries:
+		for k,v in null_entry_counts.items():
+			sys.stderr.write("_NODE_ID\t{}\t{}\n".format( k, v ) )
 
 if __name__ == "__main__":
 	main(sys.argv[1:], sys.stdout)

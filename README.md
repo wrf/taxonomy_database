@@ -83,7 +83,9 @@ $ head Paramacrobiotus_richtersi_GFGY01.renamed.fasta
 to preserve the information from Trinity components and allow better downstream identification of splice variants (perhaps from BLAST hits). This works for the vast majority of transcriptomes, which are assembled with Trinity, though it may be necessary to confirm for each sample.
 
 ## for all of NCBI SRA ##
-At the time of writing (May 2021) [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contains over 10M entries, accounting for [22 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (quadruple increase from 6 petabases at the end of 2017). Chordates (mostly human samples, or mouse) account for over 3.8 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for over 2.6 million.
+As of June 2022, [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) has over 16 million samples. Previously in May 2021 [NCBI Trace Archive](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contained over 10M entries, accounting for [22 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (quadruple increase from 6 petabases at the end of 2017). 
+
+Chordates (mostly human samples, or mouse) account for over 3.8 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for over 2.6 million.
 
 ![NCBI_SRA_Metadata_Full_20210104.w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20210104.w_kingdom.png)
 
@@ -92,6 +94,15 @@ The entire [metadata library of SRA can be downloaded](https://trace.ncbi.nlm.ni
 `tar -tzf NCBI_SRA_Metadata_Full_20180402.tar.gz | more`
 
 Reading from the archive took a long time (rather slowly over several days with 1 CPU). As the file became rapidly larger over the years, and I was extracting more data from the archive, the run time approached a month yet still demanded around 20Gb of memory. Thus, a new version using glob on the unzipped archive was implemented. This trades time and memory for harddive space, as the zipped archive (April 2021) is 4.8Gb, while the unzipped archive is 169Gb (97% compression). It should be noted that `gzip -l` will not give accurate measures of compression rate for files this size.
+
+```
+touch starttime
+tar -zxpf NCBI_SRA_Metadata_Full_20220117.tar.gz -C Full_20220117/
+touch endtime
+
+# -rw-rw-r--  1 user user           0 Jun 22 15:38 starttime
+# -rw-rw-r--  1 user user           0 Jun 23 15:13 endtime
+```
 
 This [first version](https://github.com/wrf/taxonomy_database/blob/master/parse_sra_metadata.py) generated a 4-column table containing: sample name, the SRA number, the NCBI Taxonomy number, the scientific name (species or environment). It is now preferable for other operations to use [another script to produce a longer table](https://github.com/wrf/taxonomy_database/blob/master/parse_long_sra_metadata.py) of 12 columns for downstream analyses. Based on the xml files present, a large number of folders do not have a `sample.xml` file, which creates a long list of warnings in the script. An example STDERR is shown for the command below.
 
@@ -236,7 +247,18 @@ Among the most common user-entered errors is swapping NS or EW. Longitude 0 woul
 
 ![lat-lon_e-w_mirror_image_error.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/lat-lon_e-w_mirror_image_error.jpg)
 
+![lat_long_ew_mirror_error_2.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/lat_long_ew_mirror_error_2.jpg)
+
 Another obvious error is the presence of these stripes of samples, almost looking like oceanic transects. Each sample has an increasing latitude of the one before by exactly 1 unit, likely due to a drag-copy incrementing introduced by Excel. Probably, the submitters intended to copy some of the metadata fields in the spreadsheet before submitting to NCBI, not realizing that it would copy the text but try to increment numbers wherever it could.
 
 ![excel_drag_copy_error_screenshot.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/excel_drag_copy_error_screenshot.jpg)
+
+These two below are examples that appear to be errors, but it is not clear where the (likely) typo occurred. For Banyuls-sur-mer, it is likely that the 47.27 N was supposed to be 42.7 N, as the longitude appears to be correct.
+
+![off_location_typo_likely_error_screenshot.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/off_location_typo_likely_error_screenshot.jpg)
+
+The given geographic place may also be quite offset from the given lat-lon.
+
+![random_spots_in_desert_errors.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/random_spots_in_desert_errors.jpg)
+
 

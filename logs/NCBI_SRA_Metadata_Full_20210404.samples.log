@@ -1,0 +1,212 @@
+# parsing metadata from /home/wfrancis/est/sra_ncbi/20210404_samples/  Wed May 12 10:35:57 2021
+WARNING: CANNOT FIND ITEM 3, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3158907/ERA3158907.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 4, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3144119/ERA3144119.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 5, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3220435/ERA3220435.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 9, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3512091/ERA3512091.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 20, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA1518593/ERA1518593.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 21, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3376719/ERA3376719.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 27, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3429111/ERA3429111.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 29, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3406370/ERA3406370.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 34, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3582772/ERA3582772.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 35, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3032091/ERA3032091.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 42, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3276442/ERA3276442.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 48, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA001214/SRA001214.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 52, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2687735/ERA2687735.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 54, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3654751/ERA3654751.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 56, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2194213/ERA2194213.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 57, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3293854/ERA3293854.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 60, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3244528/ERA3244528.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 66, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3282438/ERA3282438.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 67, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3562376/ERA3562376.sample.xml, SKIPPING  Wed May 12 10:35:59 2021
+WARNING: CANNOT FIND ITEM 70, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3153594/ERA3153594.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 77, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA684591/SRA684591.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 79, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3624495/ERA3624495.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 82, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3430557/ERA3430557.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 83, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3387467/ERA3387467.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 97, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3003538/ERA3003538.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 100, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3039313/ERA3039313.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 101, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3297743/ERA3297743.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 106, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3004895/ERA3004895.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 110, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3717074/ERA3717074.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 111, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3714435/ERA3714435.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 114, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3038928/ERA3038928.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 117, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3650791/ERA3650791.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 120, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3264543/ERA3264543.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 121, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA1907022/ERA1907022.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 122, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3198896/ERA3198896.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 126, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3358325/ERA3358325.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 128, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2681173/ERA2681173.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 133, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2625679/ERA2625679.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 136, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3624928/ERA3624928.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 139, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3198838/ERA3198838.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 140, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3526065/ERA3526065.sample.xml, SKIPPING  Wed May 12 10:36:00 2021
+WARNING: CANNOT FIND ITEM 172, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA053815/SRA053815.sample.xml, SKIPPING  Wed May 12 10:36:01 2021
+WARNING: CANNOT FIND ITEM 182, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3173898/ERA3173898.sample.xml, SKIPPING  Wed May 12 10:36:01 2021
+WARNING: CANNOT FIND ITEM 199, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3046335/ERA3046335.sample.xml, SKIPPING  Wed May 12 10:36:01 2021
+WARNING: CANNOT FIND ITEM 202, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA552339/ERA552339.sample.xml, SKIPPING  Wed May 12 10:36:01 2021
+WARNING: CANNOT FIND ITEM 209, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3384561/ERA3384561.sample.xml, SKIPPING  Wed May 12 10:36:01 2021
+WARNING: CANNOT FIND ITEM 215, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA050893/SRA050893.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 221, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3233662/ERA3233662.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 222, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3710822/ERA3710822.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 225, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2708112/ERA2708112.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 227, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3659655/ERA3659655.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 233, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA411959/SRA411959.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 241, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3664562/ERA3664562.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 242, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA925252/ERA925252.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 243, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3355453/ERA3355453.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 260, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3276194/ERA3276194.sample.xml, SKIPPING  Wed May 12 10:36:02 2021
+WARNING: CANNOT FIND ITEM 287, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA1312764/ERA1312764.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 291, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA418554/SRA418554.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 295, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3450215/ERA3450215.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 297, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3457057/ERA3457057.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 302, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3521895/ERA3521895.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 316, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3575095/ERA3575095.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 328, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3214536/ERA3214536.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 330, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA034319/SRA034319.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 336, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3254726/ERA3254726.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 339, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3436635/ERA3436635.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 355, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2393194/ERA2393194.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 357, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3372265/ERA3372265.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 358, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2711491/ERA2711491.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 364, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3390074/ERA3390074.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 365, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA408515/SRA408515.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 372, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3633782/ERA3633782.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 374, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3583017/ERA3583017.sample.xml, SKIPPING  Wed May 12 10:36:03 2021
+WARNING: CANNOT FIND ITEM 405, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3632929/ERA3632929.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 410, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3242676/ERA3242676.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 413, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA1123451/ERA1123451.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 419, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3586168/ERA3586168.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 420, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3229208/ERA3229208.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 427, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA893394/ERA893394.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 432, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA1888516/ERA1888516.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 433, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3547318/ERA3547318.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 434, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3715372/ERA3715372.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 435, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3622520/ERA3622520.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 436, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA396336/SRA396336.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 443, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2204817/ERA2204817.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 448, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2339799/ERA2339799.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 449, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3238545/ERA3238545.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 453, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3266138/ERA3266138.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 455, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA432305/SRA432305.sample.xml, SKIPPING  Wed May 12 10:36:04 2021
+WARNING: CANNOT FIND ITEM 459, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2783730/ERA2783730.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 460, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3530072/ERA3530072.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 471, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3461005/ERA3461005.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 473, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2716392/ERA2716392.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 479, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2694177/ERA2694177.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 487, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA683929/SRA683929.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 491, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA811478/SRA811478.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 492, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA2803718/ERA2803718.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 498, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3263915/ERA3263915.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+WARNING: CANNOT FIND ITEM 502, /home/wfrancis/est/sra_ncbi/20210404_samples/ERA3243427/ERA3243427.sample.xml, SKIPPING  Wed May 12 10:36:05 2021
+# 100 WARNINGS, WILL NOT DISPLAY MORE  Wed May 12 10:36:05 2021
+# 100000 folders  Wed May 12 11:48:28 2021
+# 200000 folders  Wed May 12 12:33:09 2021
+# 300000 folders  Wed May 12 13:08:25 2021
+# 400000 folders  Wed May 12 13:44:01 2021
+# 500000 folders  Wed May 12 14:20:28 2021
+# 600000 folders  Wed May 12 14:57:16 2021
+# 700000 folders  Wed May 12 15:34:13 2021
+# 800000 folders  Wed May 12 16:11:55 2021
+# 900000 folders  Wed May 12 16:48:53 2021
+# 1000000 folders  Wed May 12 17:26:51 2021
+# 1100000 folders  Wed May 12 18:07:01 2021
+# 1200000 folders  Wed May 12 18:49:40 2021
+# 1300000 folders  Wed May 12 19:33:55 2021
+# 1400000 folders  Wed May 12 20:18:44 2021
+# 1500000 folders  Wed May 12 21:05:05 2021
+# 1600000 folders  Wed May 12 21:51:53 2021
+# 1700000 folders  Wed May 12 22:39:03 2021
+# 1800000 folders  Wed May 12 23:25:20 2021
+# 1900000 folders  Thu May 13 00:11:53 2021
+# 2000000 folders  Thu May 13 00:58:59 2021
+# 2100000 folders  Thu May 13 01:45:55 2021
+# 2200000 folders  Thu May 13 02:33:04 2021
+# 2300000 folders  Thu May 13 03:20:53 2021
+# 2400000 folders  Thu May 13 04:08:42 2021
+# 2500000 folders  Thu May 13 04:57:01 2021
+# Last folder was 2534419, /home/wfrancis/est/sra_ncbi/20210404_samples/SRA839388/SRA839388.sample.xml  Thu May 13 05:13:20 2021
+# Process completed in 1117.4 minutes
+# Found 2534423 members with 2534419 folders, for 10838654 samples and 11772986 experiments
+# Found 4 files, last one was SRA_Run_Members
+# Could not experimental details for 1374257 folders
+# Could not find samples for 543820 folders
+### Common sample attributes included:
+cd13 profile	6
+Stand_age	565
+cell type name	4
+Cyclic Dyschezia severity	162
+Sequence type	78
+Clinical Categorization	16
+reads _tax	15
+characteristics: ChIP antibody	24
+SD_solar_radiation	1010
+Alexandrium ostenfeldii	3
+fractioning	191
+site;veg_type;exp;location;plot_Id;unique_plotID;UMGC_sample.id;DNA_sample.id;unique_sampID;treatment;myc_assoc;incubated;sample_type;type;isolate;mel_status;incub_period.days	157
+sirna/dsrna	30
+sample type type	6
+mouse_identification	930
+blunt_vs_penetrating	150
+child_behav_CBQ_Sadness_t1	40
+proximity ligation	13
+Relevant Standard Operating Procedures	209
+reference_number	15
+Sample Month	6
+sperm symptoms	18
+birth year	8552
+75_As	127
+culturing time	57
+cgrp-treated	46
+sample_name,sample_title,bioproject_accession,organism,collection_date,env_biome,env_feature,env_material,geo_loc_name,host,lat_lon,,	23
+r1 guide sequence	10
+study type	307
+host_zygosity	402
+trophic_level	4670
+disease_type	301
+cag_repeats	124
+derived strain	4
+transduced/transfected with	18
+phase of infection	29
+Aquaria tank	32
+redox_potential_millivolts	10
+proximity to blood vessels	13
+16S copy number	190
+Used in assembly	31
+lung/pulmonary disorder	1171
+infection_status	510
+pi_first_name	724
+geographic location (country and/or sea,region)	22366
+88_Sr	127
+RNA binding protein	3
+number of days of in vitro differentiation	8
+dormancy	6
+ifn status	756
+range size	563
+cdh1 genotype	4
+incubation treatment	270
+stable_isotope_13c_host_liver	56
+isolation area	60
+cancer size	70
+Hip_T-Score	86
+diarrhea_num_days_in_past_week	2313
+host_cholesteron	16
+FC13 	1
+13c_or_12c	18
+Synonym	2
+VNTR	377
+rnai_condition	27
+vioscreen pfa182	1914
+Severity score	131
+gc_content	697
+days_cultured_post_editing	89
+the time of sampling	12
+kids	360
+transformant_line	2
+building_occupancy_type_detail	89
+day of in vitro culture after ivf	6
+fetal hb	346
+collection_data_full	53
+Traceback (most recent call last):
+  File "./parse_long_sra_metadata.py", line 250, in <module>
+    
+UnicodeEncodeError: 'ascii' codec can't encode character u'\xb0' in position 17: ordinal not in range(128)

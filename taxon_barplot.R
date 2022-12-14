@@ -9,7 +9,7 @@ inputfile = args[1]
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20180402.unique_ncbi_ids_w_king.tab"
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20180402.ncbi_ids_w_kingdom.tab"
 #inputfile = "~/project/taxonomy_database/NCBI_SRA_Metadata_Full_20220117.sample_kingdom.tab"
-outputfile = gsub("([\\w/]+)\\....$","\\1.pdf",inputfile,perl=TRUE)
+outputfile = gsub("([\\w/]+)\\....$","\\1.pdf",gsub(".gz$","",inputfile,perl=TRUE),perl=TRUE)
 
 print(paste("Reading",inputfile,Sys.time()))
 taxondata = read.table(inputfile, header=TRUE, sep="\t")

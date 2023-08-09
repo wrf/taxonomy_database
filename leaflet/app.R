@@ -1,7 +1,7 @@
 # sra/leaflet/app.R
 # make interactive map of SRA metagenomic samples
 # created by WRF 2021-04-11
-# last updated 2022-06-28
+# last updated 2023-06-19
 
 library(shiny)
 library(leaflet)
@@ -10,10 +10,10 @@ library(DT)
 
 # current host of this file at:
 # https://bitbucket.org/wrf/subsurface2017/downloads/
-#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.h100k.tab"
+inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.h100k.tab"
 #inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.tab"
 #inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes.loc_test.tab"
-inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.tab"
+#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.tab.gz"
 
 # v1 headers          1              2               3             4                 5              6           7
 mgd_colunm_headers = c("sra_study_id", "sample_alias", "sra_sample_acc", "ncbi_id", "ncbi_category","latitude","longitude",
@@ -147,8 +147,8 @@ ui <- fluidPage(
              sliderInput(inputId = "year",
                          label = "Year",
                          min = 1990,
-                         max = 2020,
-                         value = c(1990,2020),
+                         max = 2025,
+                         value = c(1990,2025),
                          sep=""
                          )
             ),

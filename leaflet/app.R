@@ -1,7 +1,7 @@
 # sra/leaflet/app.R
 # make interactive map of SRA metagenomic samples
 # created by WRF 2021-04-11
-# last updated 2023-06-19
+# last updated 2024-10-25
 
 library(shiny)
 library(leaflet)
@@ -10,12 +10,11 @@ library(DT)
 
 # current host of this file at:
 # https://bitbucket.org/wrf/subsurface2017/downloads/
-inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.h100k.tab"
-#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes_latlon-fixed.tab"
-#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20210404.metagenomes.loc_test.tab"
-#inputfilename = "~/git/taxonomy_database/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.tab.gz"
+#
+inputfilename = "~/project/taxonomy_database/data/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.h100k.tab"
+#inputfilename = "~/project/taxonomy_database/data/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.tab.gz"
 
-# v1 headers          1              2               3             4                 5              6           7
+# v1 headers                 1              2               3             4          5              6           7
 mgd_colunm_headers = c("sra_study_id", "sample_alias", "sra_sample_acc", "ncbi_id", "ncbi_category","latitude","longitude",
                    "year","month","day", "isolation_source", "location", "category")
 #                   8       9       10         11              12           13
@@ -31,26 +30,26 @@ print(paste("# File contains", dim(metagenomedata)[1], "items with", dim(metagen
 metagenome_type = metagenomedata[["category"]]
 
 # set up color categories
-humancols = c("human", "human oral", "human nasopharyngeal", "human skin", "human vaginal", "human reproductive system", "human lung", "human milk", "human blood", "human tracheal", "human saliva", "human eye", "human bile", "human sputum", "human semen", "human skeleton", "human urinary tract", "human brain","human viral")
-gutscols = c("gut", "feces", "human gut", "human feces", "mouse gut", "rat gut", "bovine gut", "pig gut", "sheep gut", "goat gut", "chicken gut", "insect gut", "fish gut", "invertebrate gut", "shrimp gut", "termite gut")
-miscbodycols = c("skin", "lung", "stomach", "vaginal", "oral", "milk", "respiratory tract", "upper respiratory tract", "oral-nasopharyngeal", "urogenital", "reproductive system", "placenta", "urine", "eye", "blood", "liver", "internal organ", "semen", "urinary tract", "granuloma", "ear", "peritoneum")
+humancols      = c("human", "human oral", "human nasopharyngeal", "human skin", "human vaginal", "human reproductive system", "human lung", "human milk", "human blood", "human tracheal", "human saliva", "human eye", "human bile", "human sputum", "human semen", "human skeleton", "human urinary tract", "human brain","human viral")
+gutscols       = c("gut", "feces", "human gut", "human feces", "mouse gut", "rat gut", "bovine gut", "pig gut", "sheep gut", "goat gut", "chicken gut", "insect gut", "fish gut", "invertebrate gut", "shrimp gut", "termite gut")
+miscbodycols   = c("skin", "lung", "stomach", "vaginal", "oral", "milk", "respiratory tract", "upper respiratory tract", "oral-nasopharyngeal", "urogenital", "reproductive system", "placenta", "urine", "eye", "blood", "liver", "internal organ", "semen", "urinary tract", "granuloma", "ear", "peritoneum")
 mar_animalcols = c("coral", "coral reef", "fish", "gill", "sponge", "crustacean", "crab", "mollusc", "oyster", "marine plankton", "sea anemone", "jellyfish", "hydrozoan", "echinoderm", "starfish", "sea urchin", "zebrafish", "sea squirt", "cetacean", "annelid", "ctenophore", "egg")
 ter_animalcols = c("primate", "mouse", "mouse skin", "rat", "rodent", "shrew", "bat", "canine", "feline", "bovine", "ovine", "sheep", "pig", "horse", "musk", "marsupial", "koala", "frog", "amphibian", "bird", "snake", "insect", "insect nest", "honeybee", "wasp", "tick", "mite", "ant", "mosquito", "spider", "beetle", "termite", "termitarium", "invertebrate", "insect work", "nematode", "parasite", "pitcher plant inquiline", "whole organism")
-plantcols = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "psyllid", "termite fungus garden", "plant fiber", "straw")
-algaecols = c("algae", "dinoflagellate", "macroalgae", "seagrass", "phycosphere", "periphyton", "phytoplankton")
-saltwatercols = c("seawater", "marine", "estuary", "hydrothermal vent", "cold seep")
-watercols = c("freshwater", "aquatic", "groundwater", "rock porewater", "aquifer", "lake water", "pond", "lagoon", "oasis", "riverine", "tidal flat", "wetland", "hot springs", "cold spring", "salt marsh", "rice paddy", "mangrove", "soda lake", "salt lake", "hypersaline lake", "saline spring", "saltern", "brine", "ice", "snow", "glacier", "glacier lake", "permafrost", "anchialine")
-earthcols = c("soil", "soil crust", "terrestrial", "rock", "sediment", "marine sediment", "freshwater sediment", "alkali sediment", "subsurface", "sand", "beach sand", "peat", "bog", "halite", "volcano", "stromatolite", "cave", "fossil", "mud", "hypolithon", "clay", "bentonite", "ore", "moonmilk")
-industcols = c("wastewater", "bioreactor", "fermentation", "retting", "activated sludge", "anaerobic digester", "sludge", "bioreactor sludge", "decomposition", "biogas fermenter", "cow dung", "manure", "biofilter", "silage", "mine", "mine drainage", "mine tailings", "landfill", "industrial waste", "solid waste", "bioleaching", "biosolids", "poultry litter", "soda lime", "activated carbon", "drinking water", "salt mine", "salt pan", "fertilizer", "biofloc", "ballast water", "interstitial water", "aquaculture", "chemical production", "runoff")
-petrolcols = c("hydrocarbon", "oil", "crude oil", "oil field", "oil sands", "oil production facility", "gas well", "fuel tank", "coal", "tar pit", "shale gas")
-electriccols = c("microbial fuel cell", "bioanode", "biocathode", "electrolysis cell")
-citycols = c("indoor", "dust", "urban", "hospital", "clinical", "surface", "money", "steel", "factory", "concrete", "paper pulp", "painting", "parchment", "HVAC", "museum specimen", "medical device", "tomb wall", "tomb", "book", "power plant")
-aircols = c("air", "aerosol", "outdoor", "cloud")
-microbecols = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecological", "ecologicals", "eukaryotic", "microbial eukaryotic", "organismals", "microeukaryotic", "marine picoeukaryotic", "eukaryotic aquatic", "bacterioplankton", "protist")
-foodcols = c("food", "food production", "food fermentation", "honey", "wine", "probiotic", "dietary supplements", "grain", "food contamination", "herbal medicine")
-plasticcols = c("plastisphere", "plastic", "flotsam", "nutrient bag")
-synthcols = c("synthetic")
-unclasscols = c("metagenome", "metagenomes")
+plantcols      = c("plant", "rhizosphere", "root", "rhizoplane", "phyllosphere", "leaf", "leaf litter", "root associated fungus", "hyphosphere", "wood decay", "compost", "pollen", "seed", "tobacco", "flower", "floral nectar", "tree", "moss", "phytotelma", "ant fungus garden", "shoot", "psyllid", "termite fungus garden", "plant fiber", "straw")
+algaecols      = c("algae", "dinoflagellate", "macroalgae", "seagrass", "phycosphere", "periphyton", "phytoplankton")
+saltwatercols  = c("seawater", "marine", "estuary", "hydrothermal vent", "cold seep")
+watercols      = c("freshwater", "aquatic", "groundwater", "rock porewater", "aquifer", "lake water", "pond", "lagoon", "oasis", "riverine", "tidal flat", "wetland", "hot springs", "cold spring", "salt marsh", "rice paddy", "mangrove", "soda lake", "salt lake", "hypersaline lake", "saline spring", "saltern", "brine", "ice", "snow", "glacier", "glacier lake", "permafrost", "anchialine")
+earthcols      = c("soil", "soil crust", "terrestrial", "rock", "sediment", "marine sediment", "freshwater sediment", "alkali sediment", "subsurface", "sand", "beach sand", "peat", "bog", "halite", "volcano", "stromatolite", "cave", "fossil", "mud", "hypolithon", "clay", "bentonite", "ore", "moonmilk")
+industcols     = c("wastewater", "bioreactor", "fermentation", "retting", "activated sludge", "anaerobic digester", "sludge", "bioreactor sludge", "decomposition", "biogas fermenter", "cow dung", "manure", "biofilter", "silage", "mine", "mine drainage", "mine tailings", "landfill", "industrial waste", "solid waste", "bioleaching", "biosolids", "poultry litter", "soda lime", "activated carbon", "drinking water", "salt mine", "salt pan", "fertilizer", "biofloc", "ballast water", "interstitial water", "aquaculture", "chemical production", "runoff")
+petrolcols     = c("hydrocarbon", "oil", "crude oil", "oil field", "oil sands", "oil production facility", "gas well", "fuel tank", "coal", "tar pit", "shale gas")
+electriccols   = c("microbial fuel cell", "bioanode", "biocathode", "electrolysis cell")
+citycols       = c("indoor", "dust", "urban", "hospital", "clinical", "surface", "money", "steel", "factory", "concrete", "paper pulp", "painting", "parchment", "HVAC", "museum specimen", "medical device", "tomb wall", "tomb", "book", "power plant")
+aircols        = c("air", "aerosol", "outdoor", "cloud")
+microbecols    = c("biofilm", "fungus", "endophyte", "microbial mat", "mixed culture", "viral", "symbiont", "epibiont", "lichen", "lichen crust", "aquatic viral", "eukaryotic plankton", "ciliate", "ecological", "ecologicals", "eukaryotic", "microbial eukaryotic", "organismals", "microeukaryotic", "marine picoeukaryotic", "eukaryotic aquatic", "bacterioplankton", "protist")
+foodcols       = c("food", "food production", "food fermentation", "honey", "wine", "probiotic", "dietary supplements", "grain", "food contamination", "herbal medicine")
+plasticcols    = c("plastisphere", "plastic", "flotsam", "nutrient bag")
+synthcols      = c("synthetic")
+unclasscols    = c("metagenome", "metagenomes")
 
 # determine colors for all points
 print( "# Assigning colors to categories" )
@@ -96,7 +95,7 @@ print( "# Building point popup labels" ) # unsure why this takes so long
 # should end up looking like
 # "<b><a href='https://www.ncbi.nlm.nih.gov/sra/SRS5092595'>SRS5092595</a></b>"
 sra_expt_address_string = paste0("<b><a href='https://www.ncbi.nlm.nih.gov/sra/", 
-                                 metagenomedata[["sra_sample_acc"]] ,"'>", 
+                                 metagenomedata[["sra_sample_acc"]] ,"' target='_blank'>", 
                                  metagenomedata[["sra_sample_acc"]] , "</a></b>")
 # should look like "2017-3-0"
 sample_date_string = paste(metagenomedata[["year"]], metagenomedata[["month"]], 
@@ -135,6 +134,8 @@ ui <- fluidPage(
       column(4,
              # https://github.com/leaflet-extras/leaflet-providers
              # https://openmaptiles.org/docs/website/leaflet/
+             # as of 2024, this worked best
+             # https://leaflet-extras.github.io/leaflet-providers/preview/
              radioButtons("tileset", h3("Map Tile Set"),
                           choices = list("Esri.WorldTopoMap (topography)" = "esritopo",
                                          "Esri.WorldImagery (satellite)" = "esrisatellite",
@@ -295,7 +296,7 @@ server <- function(input, output) {
     if ( input$lineoverlay==TRUE ) {
       leafletProxy("worldMap", data=NULL) %>%
         removeTiles(layerId="overlaylines") %>%
-        addProviderTiles(providers$Stamen.TonerLines, layerId="overlaylines",
+        addProviderTiles(providers$Stadia.StamenTonerLines, layerId="overlaylines",
                          options = providerTileOptions(opacity = 0.9) )
     } else {
       leafletProxy("worldMap", data=NULL) %>%
@@ -307,7 +308,7 @@ server <- function(input, output) {
     if ( input$nameoverlay==TRUE ) {
       leafletProxy("worldMap", data=NULL) %>%
         removeTiles(layerId="overlaylabs") %>%
-        addProviderTiles(providers$Stamen.TonerLabels, layerId="overlaylabs",
+        addProviderTiles(providers$Stadia.StamenTonerLabels, layerId="overlaylabs",
                          options = providerTileOptions(opacity = 0.5) )
     } else {
       leafletProxy("worldMap", data=NULL) %>%

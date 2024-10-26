@@ -3,93 +3,51 @@ Large sequence archives like [NCBI SRA](https://trace.ncbi.nlm.nih.gov/Traces/sr
 
 Scripts are written for Python and R. Below, I detail how I made:
 
-* plot of the most common species in the [NCBI trace assembly archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa) (dominated by the insect transcriptome project)
-* [plot](https://github.com/wrf/taxonomy_database#for-all-of-ncbi-sra) of the most common samples in [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) (human and mouse samples dominate)
-* plot of species diversity, by taxonomic rank (bacteria dominate)
+* plot of the most common species in the [NCBI trace assembly archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa), the archive of assembled transcriptomes (dominated by the insect transcriptome project)
+* [plot](https://github.com/wrf/taxonomy_database#counting-phyla-from-all-of-ncbi-sra) of the most common samples in [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) (human and mouse samples dominate)
+* plot of total species diversity, by taxonomic rank (bacteria dominate)
 * [plot](https://github.com/wrf/taxonomy_database#metagenomic-samples) of most common sources of metagenomes (human and gut samples dominate, then soil, then water)
 * [map](https://github.com/wrf/taxonomy_database#map-of-metagenomes) of global distribution of metagenomic samples (can be modified to show any category)
 * [interactive map app](https://github.com/wrf/taxonomy_database#shinyapp-of-metagenomes) of the distribution of metagenomic samples, using [RShiny](https://shiny.rstudio.com/tutorial/) and [leaflet](https://rstudio.github.io/leaflet/)
 
-## NCBI transcriptome assemblies ##
-The master list of the transcriptome shotgun archive can be found below, though the embedded links only download a GenBank format file:
+## making a table of kingdoms from NCBI transcriptome assemblies ##
+The master list of the transcriptome shotgun archive can be found at the [NCBI Trace archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/). On the [trace archive, select only the TSA projects](https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa), and download the file `wgs_selector.csv` (default name) and rename as desired; I usually add the date.
 
-`ftp://ftp.ddbj.nig.ac.jp/ddbj_database/tsa/TSA_ORGANISM_LIST.html`
-
-Gzipped FASTA-format files can also be downloaded at the [NCBI Trace archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/), by species name (e.g. *Hormiphora californensis*) or the 4-letter accessions (like GGLO01).
+At this same site, gzipped FASTA-format files can also be downloaded at the [NCBI Trace archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/), by species name (e.g. *Hormiphora californensis*) or the 4-letter accessions (like GGLO01).
 
 This currently contains transcriptomes of:
 
-![wgs_selector_tsa_only_20220606.w_king.png](https://github.com/wrf/taxonomy_database/blob/master/images/wgs_selector_tsa_only_20220606.w_king.png)
+![wgs_selector_tsa_only_2024-10-25.w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/wgs_selector_tsa_only_2024-10-25.w_kingdom.png)
 
-## adding kingdom etc ##
-To add kingdom, phylum and class ranks to this table, so it can be more easily searched. Copy the `organism` column to a text file (here this is named as `sra_trace_species_list_2018-04-05.txt`). Then run:
-
-`parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i sra_trace_species_list_2018-04-05.txt > sra_trace_species_w_phyla_2018-04-05.txt`
-
-NCBI Taxonomy files can be downloaded at from the `taxdump.tar.gz` file at:
+## directly using CSV from NCBI WGS ##
+To get the kingdom and phylum, NCBI Taxonomy files can be downloaded at from the `taxdump.tar.gz` file at the FTP:
 
 `ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/`
 
-The current, full link can be captured with:
+The current, full link can be captured in the command line with:
 
 `wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz`
 
-In the older method, the names had to be extracted with `cut`, using `grep` to remove the header line `organism_an`. Then use the names and the taxonomy files to regenerate the table including kingdom. 
+This should be unzipped, and it may be useful to rename this folder by date as well.
 
-```
-cut -f 5 -d , wgs_selector_tsa_only_2018-08-23.csv | grep -v organism_an > wgs_selector_tsa_only_2018-08-23.names_only`
-parse_ncbi_taxonomy.py -i wgs_selector_tsa_only_2018-08-23.names_only -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --header > wgs_selector_tsa_only_2018-08-23.w_kingdom.tab
-Rscript taxon_barplot.R wgs_selector_tsa_only_2018-08-23.w_kingdom.tab
-```
-
-Thus, it is better to use the method below, which can read directly from the NCBI TSA csv file.
-
-## using CSV from NCBI WGS ##
-On the [trace archive](https://www.ncbi.nlm.nih.gov/Traces/wgs/?page=1&view=tsa), select only the `TSA` projects, and download the file `wgs_selector.csv` (renaming as desired).
+Using those databases, the kingdom, phylum, and class can be added to each species:
 
 `parse_ncbi_taxonomy.py -n ~/db/taxonomy_20210518/names.dmp -o ~/db/taxonomy_20210518/nodes.dmp --csv -i wgs_selector_tsa_only_20220606.csv --numbers > wgs_selector_tsa_only_20220606.w_king.tsv`
 
-Then generate the summary barplot:
+Then generate the summary barplot using the R script:
 
 `Rscript taxon_barplot.R wgs_selector_tsa_only_20220606.w_king.tsv`
 
-## rapid downloading and renaming ##
-Assemblies can be downloaded directly from the NCBI FTP using `wget`, which can be called through the script `download_ncbi_tsa.py`. The only input requirement (`-i`) is a file of the accession numbers.
+## counting phyla from all of NCBI SRA ##
+As of June 2022, [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) has over 16 million samples. Previously in May 2021 [NCBI Trace Archive](https://trace.ncbi.nlm.nih.gov/Traces/index.html?view=mirroring) contained over 10M entries, accounting for [22 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (quadruple increase from 6 petabases at the end of 2017). 
 
-`download_ncbi_tsa.py -i download_codes.txt`
-
-The download codes are the 4-letter accessions, with one accession per line. Only the first 4 characters are used, so the names can be directly copied out of the table, and pasted into a text file like:
-
-```
-GAUS.gz
-GAUU.gz
-GAVC.gz
-```
-
-With each download, the FASTA headers are changed and written into a new file, in the format of `Genus_species_XXXX01.renamed.fasta`, where `XXXX` is the accession number. For example, from `GFGY01.1.fsa_nt.gz`, a new file would be made named `Paramacrobiotus_richtersi_GFGY01.renamed.fasta`, and the FASTA header of first sequence:
-
-```
-$ gzip -dc GFGY01.1.fsa_nt.gz | head
->GFGY01000001.1 TSA: Paramacrobiotus richtersi comp116965_c2 transcribed RNA sequence
-```
-
-would be changed to:
-
-```
-$ head Paramacrobiotus_richtersi_GFGY01.renamed.fasta
->Paramacrobiotus_richtersi_comp116965_c2
-```
-
-to preserve the information from Trinity components and allow better downstream identification of splice variants (perhaps from BLAST hits). This works for the vast majority of transcriptomes, which are assembled with Trinity, though it may be necessary to confirm for each sample.
-
-## for all of NCBI SRA ##
-As of June 2022, [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) has over 16 million samples. Previously in May 2021 [NCBI Trace Archive](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi) contained over 10M entries, accounting for [22 petabases](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra_stat.cgi) (quadruple increase from 6 petabases at the end of 2017). 
+![sra_stat_20241025.double_plot.png](https://github.com/wrf/taxonomy_database/blob/master/images/sra_stat_20241025.double_plot.png)
 
 Chordates (mostly human samples, or mouse) account for over 3.8 million of those, and "uncategorized" samples (probably environmental metagenomic samples) account for over 2.6 million.
 
 ![NCBI_SRA_Metadata_Full_20210104.w_kingdom.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20210104.w_kingdom.png)
 
-The entire [metadata library of SRA can be downloaded](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=mirroring), and then parsed directly from the `.tar.gz` file (which is several Gb). In general, the folder structure can be viewed from the tarball with:
+The entire [metadata library of SRA can be downloaded](https://ftp.ncbi.nlm.nih.gov/sra/reports/Metadata/), and then parsed directly from the `.tar.gz` file (which is several Gb). In general, the folder structure can be viewed from the tarball with:
 
 `tar -tzf NCBI_SRA_Metadata_Full_20180402.tar.gz | more`
 
@@ -260,5 +218,52 @@ These two below are examples that appear to be errors, but it is not clear where
 The given geographic place may also be quite offset from the given lat-lon.
 
 ![random_spots_in_desert_errors.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/random_spots_in_desert_errors.jpg)
+
+# old instructions #
+
+## rapid downloading and renaming of transcriptomes ##
+Assemblies can be downloaded directly from the NCBI FTP using `wget`, which can be called through the script `download_ncbi_tsa.py`. The only input requirement (`-i`) is a file of the accession numbers.
+
+`download_ncbi_tsa.py -i download_codes.txt`
+
+The download codes are the 4-letter accessions, with one accession per line. Only the first 4 characters are used, so the names can be directly copied out of the table, and pasted into a text file like:
+
+```
+GAUS.gz
+GAUU.gz
+GAVC.gz
+```
+
+With each download, the FASTA headers are changed and written into a new file, in the format of `Genus_species_XXXX01.renamed.fasta`, where `XXXX` is the accession number. For example, from `GFGY01.1.fsa_nt.gz`, a new file would be made named `Paramacrobiotus_richtersi_GFGY01.renamed.fasta`, and the FASTA header of first sequence:
+
+```
+$ gzip -dc GFGY01.1.fsa_nt.gz | head
+>GFGY01000001.1 TSA: Paramacrobiotus richtersi comp116965_c2 transcribed RNA sequence
+```
+
+would be changed to:
+
+```
+$ head Paramacrobiotus_richtersi_GFGY01.renamed.fasta
+>Paramacrobiotus_richtersi_comp116965_c2
+```
+
+to preserve the information from Trinity components and allow better downstream identification of splice variants (perhaps from BLAST hits). This works for the vast majority of transcriptomes, which are assembled with Trinity, though it may be necessary to confirm for each sample.
+
+## getting kingdom from the transcriptome archive ##
+To add kingdom, phylum and class ranks to this table, so it can be more easily searched. Copy the `organism` column to a text file (here this is named as `sra_trace_species_list_2018-04-05.txt`). Then run:
+
+`parse_ncbi_taxonomy.py -n names.dmp -o nodes.dmp -i sra_trace_species_list_2018-04-05.txt > sra_trace_species_w_phyla_2018-04-05.txt`
+
+In the older method, the names had to be extracted with `cut`, using `grep` to remove the header line `organism_an`. Then use the names and the taxonomy files to regenerate the table including kingdom. 
+
+```
+cut -f 5 -d , wgs_selector_tsa_only_2018-08-23.csv | grep -v organism_an > wgs_selector_tsa_only_2018-08-23.names_only
+parse_ncbi_taxonomy.py -i wgs_selector_tsa_only_2018-08-23.names_only -n ~/db/taxonomy/names.dmp -o ~/db/taxonomy/nodes.dmp --header > wgs_selector_tsa_only_2018-08-23.w_kingdom.tab
+Rscript taxon_barplot.R wgs_selector_tsa_only_2018-08-23.w_kingdom.tab
+```
+
+*Thus, it is better to use the methods above, which can read directly from the NCBI TSA csv file.*
+
 
 

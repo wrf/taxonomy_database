@@ -9,11 +9,12 @@ inputfile = args[1]
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20180402.unique_ncbi_ids_w_king.tab"
 #inputfile = "~/git/misc-analyses/taxonomy_database/NCBI_SRA_Metadata_Full_20180402.ncbi_ids_w_kingdom.tab"
 #inputfile = "~/project/taxonomy_database/NCBI_SRA_Metadata_Full_20220117.sample_kingdom.tab"
+#inputfile = "~/ncbi/wgs_selector_tsa_only_2024-10-25.w_kingdom.tsv"
 outputfile = gsub("([\\w/]+)\\....$","\\1.pdf",gsub(".gz$","",inputfile,perl=TRUE),perl=TRUE)
 
-print(paste("Reading",inputfile,Sys.time()))
+print(paste("Reading table from", inputfile, Sys.time() ))
 taxondata = read.table(inputfile, header=TRUE, sep="\t")
-print(paste("Done",Sys.time()))
+print(paste("Done reading table", Sys.time() ))
 
 ### define kingdom and color
 
@@ -44,6 +45,7 @@ phyla = phyla[phylamax:1]
 metaphyla = c("Arthropoda","Chordata","Mollusca", "Cnidaria", "Echinodermata","Platyhelminthes","Nematoda",
               "Annelida", "Porifera", "Rotifera", "Ctenophora", "Tardigrada")
 plantaphyla = c("Streptophyta", "Chlorophyta", "Bacillariophyta")
+rhodophyla = c("Rhodophyta")
 fungiphyla = c("Ascomycota","Basidiomycota","Mucoromycota","Chytridiomycota")
 phaeophyla = c("Phaeophyceae","Apicomplexa")
 bactphyla = c("Proteobacteria", "Firmicutes", "Actinobacteria", "Bacteroidetes", "Spirochaetes", 
@@ -52,11 +54,12 @@ archaphyla = c("Euryarchaeota", "Thaumarchaeota", "Crenarchaeota", "Parvarchaeot
 virophyla = c("Pisuviricota", "Negarnaviricota", "Artverviricota", "Kitrinoviricota", "Uroviricota", 
               "Peploviricota", "Cossaviricota", "Duplornaviricota", "Nucleocytoviricota")
 
-phylarefs = c(bactphyla,archaphyla,phaeophyla,fungiphyla,plantaphyla,metaphyla,virophyla)
+phylarefs = c(bactphyla,archaphyla,phaeophyla,fungiphyla,plantaphyla,rhodophyla,metaphyla,virophyla)
 # assumes "None" is first entry, so #888888
 phylacols = c("#888888",  rep(c("#c34741"),length(bactphyla)),  rep(c("#de851b"),length(archaphyla)),  
               rep(c("#8d8f0d"),length(phaeophyla)),  rep(c("#4075b2"),length(fungiphyla)),  
-              rep(c("#18d025"),length(plantaphyla)),  rep(c("#9354cf"),length(metaphyla)), 
+              rep(c("#18d025"),length(plantaphyla)), rep(c("#bf198a"),length(rhodophyla)),
+              rep(c("#9354cf"),length(metaphyla)), 
               rep(c("#aaaaaa"),length(virophyla)) )
 phylaorder = match(names(phyla),phylarefs,nomatch=0)+1
 
@@ -66,12 +69,16 @@ classes = sort(table(taxondata[["class"]]),decreasing=TRUE)
 classcols = rep(c("#888888"), length(classes)) # default is gray for all
 for (i in 2:length(kingrefs)) {
 within_king = taxondata[["kingdom"]]==kingrefs[i]
-cl_by_king = table(droplevels(taxondata[["class"]][within_king]))
+cl_by_king = table( taxondata[["class"]][within_king]) 
 class_positions = match(names(cl_by_king),names(classes))
 classcols[class_positions] = kingcols[i]
 }
-rogue_classes = c("None","Aconoidasida","Bacillariophyceae", "Dinophyceae","Chrysophyceae", "Bangiophyceae","Florideophyceae")
-rogue_colors = c( "#888888", "#8d8f0d","#8d8f0d","#8d8f0d","#8d8f0d",   "#bf198a", "#bf198a")
+rogue_classes = c("None",
+                  "Aconoidasida","Bacillariophyceae", "Dinophyceae","Chrysophyceae", 
+                  "Bangiophyceae","Florideophyceae")
+rogue_colors = c( "#888888", 
+                  "#8d8f0d","#8d8f0d","#8d8f0d","#8d8f0d",
+                  "#bf198a", "#bf198a")
 rogue_matches = match(rogue_classes,names(classes))
 rogue_matches = rogue_matches[!is.na(rogue_matches)]
 classcols[rogue_matches] = rogue_colors

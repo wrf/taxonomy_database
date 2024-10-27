@@ -1,7 +1,7 @@
 # sra/leaflet/app.R
 # make interactive map of SRA metagenomic samples
 # created by WRF 2021-04-11
-# last updated 2024-10-25
+# last updated 2024-10-27
 
 library(shiny)
 library(leaflet)
@@ -11,25 +11,30 @@ library(DT)
 # current host of this file at:
 # https://bitbucket.org/wrf/subsurface2017/downloads/
 #
-inputfilename = "~/project/taxonomy_database/data/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.h100k.tab"
-#inputfilename = "~/project/taxonomy_database/data/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.tab.gz"
+#inputfilename = "~/git/taxonomy_database/data/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.h100k.tab"
+#inputfilename = "~/git/taxonomy_database/data/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.tab.gz"
+inputfilename = "~/git/taxonomy_database/data/NCBI_SRA_Metadata_Full_20220117.metagenomes_latlon-fixed.Rds"
 
-# v1 headers                 1              2               3             4          5              6           7
-mgd_colunm_headers = c("sra_study_id", "sample_alias", "sra_sample_acc", "ncbi_id", "ncbi_category","latitude","longitude",
-                   "year","month","day", "isolation_source", "location", "category")
-#                   8       9       10         11              12           13
-# v2 headers
+# v2 headers                 1              2               3             4          5              6           7
+#                        8       9       10         11              12
+#                          13         14               15        16
 mgd_colunm_headers = c("sra_study_id", "sample_alias", "sra_sample_acc", "ncbi_id", "ncbi_category","latitude","longitude",
                        "year","month","day", "isolation_source", "location", 
                        "seq_type", "seq_source", "seq_selection", "category")
+# keep these here for reference
 
-print(paste("# Reading", inputfilename))
-metagenomedata = read.table(inputfilename, header=FALSE, sep="\t", stringsAsFactors=FALSE, col.names=mgd_colunm_headers )
-print(paste("# File contains", dim(metagenomedata)[1], "items with", dim(metagenomedata)[2], "columns"))
+print(paste("# Reading", inputfilename, Sys.time() ))
+#metagenomedata = read.table(inputfilename, header=FALSE, sep="\t", stringsAsFactors=FALSE, col.names=mgd_colunm_headers )
+metagenomedata = readRDS(file = inputfilename)
+print(paste("# File contains", dim(metagenomedata)[1], "items with", dim(metagenomedata)[2], "columns", Sys.time() ))
 
 metagenome_type = metagenomedata[["category"]]
 
 # set up color categories
+# for each metagenome type, grouping roughly semantically
+# some exceptions are hard to define:
+# invertebrate metagenome is defined as terrestrial (like insects), not aquatic (like cnidarians)
+# marine sediment is earth category, not water
 humancols      = c("human", "human oral", "human nasopharyngeal", "human skin", "human vaginal", "human reproductive system", "human lung", "human milk", "human blood", "human tracheal", "human saliva", "human eye", "human bile", "human sputum", "human semen", "human skeleton", "human urinary tract", "human brain","human viral")
 gutscols       = c("gut", "feces", "human gut", "human feces", "mouse gut", "rat gut", "bovine gut", "pig gut", "sheep gut", "goat gut", "chicken gut", "insect gut", "fish gut", "invertebrate gut", "shrimp gut", "termite gut")
 miscbodycols   = c("skin", "lung", "stomach", "vaginal", "oral", "milk", "respiratory tract", "upper respiratory tract", "oral-nasopharyngeal", "urogenital", "reproductive system", "placenta", "urine", "eye", "blood", "liver", "internal organ", "semen", "urinary tract", "granuloma", "ear", "peritoneum")
@@ -51,7 +56,7 @@ plasticcols    = c("plastisphere", "plastic", "flotsam", "nutrient bag")
 synthcols      = c("synthetic")
 unclasscols    = c("metagenome", "metagenomes")
 
-# determine colors for all points
+# determine colors for all points, based on the above groupings
 print( "# Assigning colors to categories" )
 colorvec = rep("#989898", length(metagenome_type))
 colorvec[which(!is.na(match(metagenome_type, humancols)))] = "#bf04a7"
@@ -78,11 +83,12 @@ colorvec[which(!is.na(match(metagenome_type, foodcols)))] = "#de851b"
 
 
 # establish some values for downstream processing
+# check that all categories above include all metagenome types found in the table
 all_categories = c(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, algaecols, saltwatercols, watercols, earthcols, industcols, petrolcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols, unclasscols)
 metagenome_cat_table = table(metagenome_type)
 not_found_categories = is.na( match( names(metagenome_cat_table), all_categories ) )
 new_categories = names(metagenome_cat_table)[not_found_categories]
-if (length(new_categories) > 0){new_categories}
+if (length(new_categories) > 0){new_categories} # print any new categories
 
 # get number of items per category
 all_categories_list = list(humancols, gutscols, miscbodycols, mar_animalcols, ter_animalcols, plantcols, algaecols, saltwatercols, watercols, earthcols, industcols, petrolcols, electriccols, citycols, aircols, microbecols, foodcols, plasticcols, synthcols, unclasscols)
@@ -91,9 +97,9 @@ items_per_cat = unlist(lapply(all_categories_list,length))
 all_cat_numerical_values = rep( seq(1,length(all_categories_list),1), items_per_cat)
 #metagenome_type_code = all_cat_numerical_values[match(metagenome_type,all_categories)]
 
-print( "# Building point popup labels" ) # unsure why this takes so long
+print( paste( "# Building point popup labels", Sys.time() ) ) # unsure why this takes so long
 # should end up looking like
-# "<b><a href='https://www.ncbi.nlm.nih.gov/sra/SRS5092595'>SRS5092595</a></b>"
+# "<b><a href='https://www.ncbi.nlm.nih.gov/sra/SRS5092595' target='_blank'>SRS5092595</a></b>"
 sra_expt_address_string = paste0("<b><a href='https://www.ncbi.nlm.nih.gov/sra/", 
                                  metagenomedata[["sra_sample_acc"]] ,"' target='_blank'>", 
                                  metagenomedata[["sra_sample_acc"]] , "</a></b>")
@@ -122,25 +128,27 @@ seq_sel_methods = names(sort(table(metagenomedata[["seq_selection"]]), decreasin
 seq_sel_methods_choices = c("All methods", seq_sel_methods )
 #
 
-print( "# Starting user interface" )
+print( paste( "# Starting user interface", Sys.time() ) )
 # begin actual shiny code
 ui <- fluidPage(
 
-  titlePanel("NCBI SRA Metagenomic Samples"),
+  titlePanel("NCBI SRA Metagenomic Samples", windowTitle = "NCBI SRA Metagenomic Samples"),
   
   # Sidebar layout with input and output definitions ----
   verticalLayout(
-    fluidRow(
+    fluidRow( # this row contains all controls
       column(4,
              # https://github.com/leaflet-extras/leaflet-providers
              # https://openmaptiles.org/docs/website/leaflet/
              # as of 2024, this worked best
              # https://leaflet-extras.github.io/leaflet-providers/preview/
              radioButtons("tileset", h3("Map Tile Set"),
-                          choices = list("Esri.WorldTopoMap (topography)" = "esritopo",
-                                         "Esri.WorldImagery (satellite)" = "esrisatellite",
-                                         "Esri.OceanBasemap" = "esriocean",
-                                         "TonerLite (gray)" = "tonerlite")
+                          choices = list("Esri.WorldTopoMap (topography)" = providers$Esri.WorldTopoMap ,
+                                         "Esri.WorldImagery (satellite)" = providers$Esri.WorldImagery ,
+                                         "Esri.WorldTerrain" = providers$Esri.WorldTerrain ,
+                                         "Esri.WorldShadedRelief" = providers$Esri.WorldShadedRelief ,
+                                         "Esri.OceanBasemap" = providers$Esri.OceanBasemap ,
+                                         "TonerLite (gray bg)" = providers$Stadia.StamenTonerLite )
                          ),
              h4("Overlay options for satellite view"),
              checkboxInput("lineoverlay", "Border overlay", value = FALSE),
@@ -165,7 +173,6 @@ ui <- fluidPage(
                                                "Earth (any)" = 10 ),
                                 selected = 7
                                 )
-             
              ),
       column(2, 
              checkboxGroupInput("cats2", "",
@@ -193,7 +200,7 @@ ui <- fluidPage(
              )
     ),
 
-    # Main panel for displaying outputs ----
+    # Main panel for displaying outputs, full width
     mainPanel(width=12,
       h3("Each point is a sample, click to display stats, Shift+click+drag to zoom"),
       leafletOutput(outputId = "worldMap", height=700),
@@ -215,14 +222,9 @@ server <- function(input, output) {
   #output$debug <- renderText({ unlist(input$worldMap_bounds) })
   #output$debug <- renderText({  })
   
+  # from tileset choice, specify provider tiles
   get_tileset_choice = reactive({
-    if (input$tileset == "tonerlite") {
-      providers$Stamen.TonerLite }
-    else if (input$tileset == "esriocean") {
-      providers$Esri.OceanBasemap }
-    else if (input$tileset == "esrisatellite") {
-      providers$Esri.WorldImagery }
-    else { providers$Esri.WorldTopoMap }
+    input$tileset
   })
   
   # reactive function to get category choices and filter dataset
@@ -283,6 +285,7 @@ server <- function(input, output) {
   observe({
     selected_samples = get_selected_samples()
     leafletProxy("worldMap", data=selected_samples) %>%
+      addProviderTiles( get_tileset_choice() ) %>%
       clearMarkers() %>%
       addCircleMarkers(lng=selected_samples$longitude , lat=selected_samples$latitude ,
                        stroke=FALSE, fillOpacity=0.25,

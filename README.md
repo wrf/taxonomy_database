@@ -105,7 +105,7 @@ The Rscript then creates the graph, displaying a similar pattern to the number o
 
 ![NCBI_SRA_Metadata_Full_20210104.w_kingdom_unique.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20210104.w_kingdom_unique.png)
 
-### Metagenomic samples ###
+## Metagenomic samples ##
 
 Almost a quarter of the samples are metagenomic, i.e. those in the "None" category for kingdom, etc. These can be parsed out of the samples file, as the `names.dmp` contains specific numbers for a number of environmental or biological categories. The option `--metagenomes-only` restricts the analysis to the 333 current metagenomic numbers.
 
@@ -117,7 +117,7 @@ This is again used as input for the Rscript, to generate another barplot. Obviou
 
 ![NCBI_SRA_Metadata_Full_20210104.metagenomes.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20210104.metagenomes.png)
 
-### Map of metagenomes ###
+## Map of metagenomes ##
 
 ![NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-sponge_water.png](https://github.com/wrf/taxonomy_database/blob/master/images/NCBI_SRA_Metadata_Full_20191130.metagenomes_latlon-sponge_water.png)
 
@@ -153,7 +153,7 @@ The v1 filtered tabular data can be downloaded [here](https://bitbucket.org/wrf/
 
 This is used within the R script [metagenomes_map.R](https://github.com/wrf/taxonomy_database/blob/master/metagenomes_map.R). Due to the large number of points, it is better to use interactively, with the version below.
 
-### Shinyapp of metagenomes ###
+## Shinyapp of metagenomes ##
 I had attempted two versions of an interactive app, one with the base [shiny](https://github.com/wrf/taxonomy_database/blob/master/Rshiny/app.R) package, and the other using the fancier [leaflet](https://github.com/wrf/taxonomy_database/blob/master/leaflet/app.R). The `leaflet` one is far better, with easy scrolling, sample popups, satellite view, and most of the transparency is handled by the app. However, it lacks the `brushedPoints()` feature of the base plotting, so the sample table just shows all samples within the current view, which might be a lot.
 
 This is a merged screenshot of the `leaflet` version:
@@ -200,7 +200,7 @@ loaded via a namespace (and not attached):
 [40] cachem_1.0.4            crayon_1.4.1          
 ```
 
-### Gallery of errors ###
+## Gallery of errors ##
 Among the most common user-entered errors is swapping NS or EW. Longitude 0 would be in London, so most of Europe/Asia is E, meaning +X, while the Americas would be W, meaning -X. Here are a few samples that should be E and are given longitude W.
 
 ![lat-lon_e-w_mirror_image_error.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/lat-lon_e-w_mirror_image_error.jpg)
@@ -210,6 +210,8 @@ Among the most common user-entered errors is swapping NS or EW. Longitude 0 woul
 Another obvious error is the presence of these stripes of samples, almost looking like oceanic transects. Each sample has an increasing latitude of the one before by exactly 1 unit, likely due to a drag-copy incrementing introduced by Excel. Probably, the submitters intended to copy some of the metadata fields in the spreadsheet before submitting to NCBI, not realizing that it would copy the text but try to increment numbers wherever it could.
 
 ![excel_drag_copy_error_screenshot.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/excel_drag_copy_error_screenshot.jpg)
+
+![excel_drag_copy_error_screenshot_2.jpg](https://github.com/wrf/taxonomy_database/blob/master/images/excel_drag_copy_error_screenshot_2.jpg)
 
 These two below are examples that appear to be errors, but it is not clear where the (likely) typo occurred. For Banyuls-sur-mer, it is likely that the 47.27 N was supposed to be 42.7 N, as the longitude appears to be correct.
 
